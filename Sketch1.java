@@ -1,6 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
-import ddf.minim.*;
+
 
 
 
@@ -53,9 +53,7 @@ public class Sketch1 extends PApplet {
     // Keep track of the time when the spacebar was last pressed
     long lastSpacebarTime = 0;
 
-    Minim minim;
-    AudioPlayer laserSound;
-    AudioPlayer backgroundMusic;
+
 
 
     public void settings() {
@@ -70,15 +68,7 @@ public class Sketch1 extends PApplet {
         // Load the player image
         playerImage = loadImage("nerd.png");
 
-        // Load sound effects
-        minim = new Minim(this);
-        laserSound = minim.loadFile("lasergun.mp3"); 
-
-         // Load background music
-        /*  minim = new Minim(this);
-         backgroundMusic = minim.loadFile("sound.mp3");
-         backgroundMusic.loop(); 
-         */
+        
  
 
         // Initialize circle positions spaced equally for the first row
@@ -353,11 +343,7 @@ public class Sketch1 extends PApplet {
                 playerLaserY[i] = playerY;
                 isPlayerLaserActive[i] = true;
 
-                // Check if the sound is not already playing
-                if (!laserSound.isPlaying()) {
-                    laserSound.rewind();  // Rewind to the beginning
-                    laserSound.play();    // Play the laser sound
-                }
+                
                 break;
             }
         }
