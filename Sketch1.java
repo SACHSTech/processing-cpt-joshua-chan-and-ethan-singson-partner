@@ -1,11 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
 
-
-
-
-
-
 public class Sketch1 extends PApplet {
 
     // Movement key variables
@@ -22,8 +17,13 @@ public class Sketch1 extends PApplet {
 
     // Declare player image variable
     PImage playerImage;
+    PImage enemyImage;
 
-    int numCircles = 4;  // Set the number of circles to 4
+    // Declare background image variables
+    PImage startMenu;
+    PImage howToMenu;
+
+    int numCircles = 4; // Set the number of circles to 4
     float[] circleX = new float[numCircles];
     float[] circleSpeeds = new float[numCircles];
     float circleSpacing = 120;
@@ -53,8 +53,13 @@ public class Sketch1 extends PApplet {
     // Keep track of the time when the spacebar was last pressed
     long lastSpacebarTime = 0;
 
+    // Button Pixels
+    int buttonTopLeftX = 185;
+    int buttonTopLeftY = 460;
+    int buttonBottomRightX = 417;
+    int buttonBottomRightY = 515;
 
-
+    boolean buttonPressed = false;
 
     public void settings() {
         size(600, 750);
@@ -68,8 +73,9 @@ public class Sketch1 extends PApplet {
         // Load the player image
         playerImage = loadImage("nerd.png");
 
-        
- 
+        // Load backgrounds
+        startMenu = loadImage("START_MENU.png");
+        howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
 
         // Initialize circle positions spaced equally for the first row
         for (int i = 0; i < numCircles; i++) {
@@ -88,22 +94,32 @@ public class Sketch1 extends PApplet {
         for (int i = 0; i < numPlayerLasers; i++) {
             isPlayerLaserActive[i] = false;
         }
-
-        
     }
-
-
 
     public void draw() {
         background(0);
 
+        // Draw the button only if it hasn't been pressed
+        if (!buttonPressed) {
+            fill(100, 100, 100);
+            rect(buttonTopLeftX, buttonTopLeftY, buttonBottomRightX - buttonTopLeftX,
+                    buttonBottomRightY - buttonTopLeftY);
+
+            // Check if the mouse is over the button
+            if (isMouseInsideButton()) {
+                fill(255);
+                // Add any additional information or actions when the mouse is over the button
+            }
+        }
+
         if (level == 1) {
-            // Level 1: Menu Screen
-            fill(255);
-            textSize(32);
-            text("Menu Screen - Press Enter to Start", width / 20, height / 2);
-        } else if (level >= 2 && level <= 4) {
-            // Levels 2-4: Gameplay
+            // Level 1: Start Menu
+            image(startMenu, 0, 0, width, height);
+        } else if (level == 2) {
+            // Level 2: How to Play Menu
+            image(howToMenu, 0, 0, width, height);
+        } else if (level >= 3 && level <= 5) {
+            // Levels 3-5: Gameplay
             handleInput();
             movePlayer();
 
@@ -129,24 +145,19 @@ public class Sketch1 extends PApplet {
             for (int i = 0; i < numCircles; i++) {
                 enemyShoot(i);
             }
-
-        } else if (level == 5) {
-            // Level 5: Boss Fight
+        } else if (level == 6) {
+            // Level 6: Boss Fight
             fill(255);
             textSize(32);
-            text("Boss Fight - Press Enter to End", width / 4, height / 2);
-            // Add boss mechanics here
-            // Check for conditions to end the game
+            // No text boxes for level 6
         }
     }
-
-   
 
     void moveCircles() {
         // Move circles side to side with consistent speed
         for (int i = 0; i < numCircles; i++) {
             circleX[i] += circleSpeeds[i];
-    
+
             // Reverse direction if the circle reaches the screen edges
             if (circleX[i] > width - circleDiameter || circleX[i] < 0) {
                 circleSpeeds[i] *= -1;
@@ -158,7 +169,7 @@ public class Sketch1 extends PApplet {
 
     void displayCircles() {
         fill(255, 0, 0); // Red color for circles
-    
+
         // Display circles for the first row
         for (int i = 0; i < numCircles; i++) {
             if (!isCircleHit[i]) {
@@ -166,9 +177,6 @@ public class Sketch1 extends PApplet {
             }
         }
     }
-    
-       
-    
 
     public void keyPressed() {
 
@@ -257,7 +265,6 @@ public class Sketch1 extends PApplet {
             }
         }
     }
-    
 
     void moveLasers() {
         for (int i = 0; i < numLasers; i++) {
@@ -343,9 +350,24 @@ public class Sketch1 extends PApplet {
                 playerLaserY[i] = playerY;
                 isPlayerLaserActive[i] = true;
 
-                
                 break;
             }
         }
     }
-}
+
+    public void mousePressed() {
+        // Check if the mouse is pressed over the button
+        if (isMouseInsideButton()) {
+          buttonPressed = true; // Mark the button as pressed
+          level = 3; // Set the level to start the game
+        }
+      }
+
+      boolean isMouseInsideButton() {
+        // Check if the mouse coordinates are within the button boundaries
+        return mouseX >= buttonTopLeftX &&
+               mouseX <= buttonBottomRightX &&
+               mouseY >= buttonTopLeftY &&
+               mouseY <= buttonBottomRightY;
+      }
+    }
