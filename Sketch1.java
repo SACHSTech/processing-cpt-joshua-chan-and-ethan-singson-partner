@@ -28,7 +28,7 @@ public class Sketch1 extends PApplet {
     float[] circleSpeeds = new float[numCircles];
     float circleSpacing = 120;
     float circleY;
-    float circleDiameter = 35;
+    float circleDiameter = 50;
 
     // array to track whether each circle has been hit
     boolean[] isCircleHit = new boolean[numCircles];
@@ -37,14 +37,14 @@ public class Sketch1 extends PApplet {
     int numLasers = 10000;
     float[] laserX = new float[numLasers];
     float[] laserY = new float[numLasers];
-    float laserSpeed = 8;
+    float laserSpeed = 7;
     boolean[] isLaserActive = new boolean[numLasers];
 
     // Laser variables for the player
     int numPlayerLasers = 1000;
     float[] playerLaserX = new float[numPlayerLasers];
     float[] playerLaserY = new float[numPlayerLasers];
-    float playerLaserSpeed = 10;
+    float playerLaserSpeed = 7;
     boolean[] isPlayerLaserActive = new boolean[numPlayerLasers];
 
     // Define a cooldown duration in milliseconds
@@ -53,13 +53,13 @@ public class Sketch1 extends PApplet {
     // Keep track of the time when the spacebar was last pressed
     long lastSpacebarTime = 0;
 
-    // Button Pixels
-    int buttonTopLeftX = 185;
-    int buttonTopLeftY = 460;
-    int buttonBottomRightX = 417;
-    int buttonBottomRightY = 515;
+    // Start Button
+    int startButtonTopLeftX = 185;
+    int startButtonTopLeftY = 460;
+    int startButtonBottomRightX = 417;
+    int startButtonBottomRightY = 515;
 
-    boolean buttonPressed = false;
+    boolean startButtonPressed = false;
 
     public void settings() {
         size(600, 750);
@@ -72,6 +72,9 @@ public class Sketch1 extends PApplet {
 
         // Load the player image
         playerImage = loadImage("nerd.png");
+
+        // Load the enemy image
+        enemyImage = loadImage("enemy.png");
 
         // Load backgrounds
         startMenu = loadImage("START_MENU.png");
@@ -100,10 +103,10 @@ public class Sketch1 extends PApplet {
         background(0);
 
         // Draw the button only if it hasn't been pressed
-        if (!buttonPressed) {
+        if (!startButtonPressed) {
             fill(100, 100, 100);
-            rect(buttonTopLeftX, buttonTopLeftY, buttonBottomRightX - buttonTopLeftX,
-                    buttonBottomRightY - buttonTopLeftY);
+            rect(startButtonTopLeftX, startButtonTopLeftY, startButtonBottomRightX - startButtonTopLeftX,
+                    startButtonBottomRightY - startButtonTopLeftY);
 
             // Check if the mouse is over the button
             if (isMouseInsideButton()) {
@@ -168,12 +171,13 @@ public class Sketch1 extends PApplet {
     }
 
     void displayCircles() {
-        fill(255, 0, 0); // Red color for circles
+        // fill(255, 0, 0); // Remove this line
 
         // Display circles for the first row
         for (int i = 0; i < numCircles; i++) {
             if (!isCircleHit[i]) {
-                ellipse(circleX[i], circleY, circleDiameter, circleDiameter);
+                image(enemyImage, circleX[i] - circleDiameter / 2, circleY - circleDiameter / 2, circleDiameter,
+                        circleDiameter);
             }
         }
     }
@@ -279,7 +283,7 @@ public class Sketch1 extends PApplet {
     }
 
     void displayLasers() {
-        fill(255, 0, 0); // Red color for lasers
+        fill(128, 0, 128);
         for (int i = 0; i < numLasers; i++) {
             if (isLaserActive[i]) {
                 // Check if the corresponding circle is not hit before displaying the laser
@@ -291,7 +295,7 @@ public class Sketch1 extends PApplet {
                     }
                 }
                 if (isActive) {
-                    rect(laserX[i], laserY[i], 5, 15); // Adjust size as needed
+                    rect(laserX[i], laserY[i], 6, 35); 
                 } else {
                     isLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
                 }
@@ -358,16 +362,16 @@ public class Sketch1 extends PApplet {
     public void mousePressed() {
         // Check if the mouse is pressed over the button
         if (isMouseInsideButton()) {
-          buttonPressed = true; // Mark the button as pressed
-          level = 3; // Set the level to start the game
+            startButtonPressed = true; // Mark the button as pressed
+            level = 3; // Set the level to start the game
         }
-      }
-
-      boolean isMouseInsideButton() {
-        // Check if the mouse coordinates are within the button boundaries
-        return mouseX >= buttonTopLeftX &&
-               mouseX <= buttonBottomRightX &&
-               mouseY >= buttonTopLeftY &&
-               mouseY <= buttonBottomRightY;
-      }
     }
+
+    boolean isMouseInsideButton() {
+        // Check if the mouse coordinates are within the button boundaries
+        return mouseX >= startButtonTopLeftX &&
+                mouseX <= startButtonBottomRightX &&
+                mouseY >= startButtonTopLeftY &&
+                mouseY <= startButtonBottomRightY;
+    }
+}
