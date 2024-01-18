@@ -1,5 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
+
 public class Sketch extends PApplet {
 
   int level = 1;

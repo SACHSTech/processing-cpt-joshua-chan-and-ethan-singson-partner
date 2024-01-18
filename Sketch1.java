@@ -1,5 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
+import ddf.minim.*;
 
 public class Sketch1 extends PApplet {
 
@@ -34,7 +35,7 @@ public class Sketch1 extends PApplet {
     boolean[] isCircleHit = new boolean[numCircles];
 
     // Laser variables
-    int numLasers = 10000;
+    int numLasers = 5000;
     float[] laserX = new float[numLasers];
     float[] laserY = new float[numLasers];
     float laserSpeed = 7;
@@ -48,10 +49,8 @@ public class Sketch1 extends PApplet {
     boolean[] isPlayerLaserActive = new boolean[numPlayerLasers];
 
     // Define a cooldown duration in milliseconds
-    int laserCooldown = 400;
+    int laserCooldown = 450;
 
-    // Keep track of the time when the spacebar was last pressed
-    long lastSpacebarTime = 0;
 
     // Start Button
     int startButtonTopLeftX = 185;
@@ -61,6 +60,12 @@ public class Sketch1 extends PApplet {
 
     boolean startButtonPressed = false;
 
+    // Audio Declarations
+    Minim minim;
+    AudioPlayer laserSound;
+
+    long lastSpacebarTime = 0; 
+
     public void settings() {
         size(600, 750);
     }
@@ -69,6 +74,10 @@ public class Sketch1 extends PApplet {
         background(255);
         playerX = width / 2;
         playerY = height - 80; // Start at the bottom center slightly spaced up
+
+        // Audio
+        minim = new Minim(this);
+        laserSound = minim.loadFile("lasergun.mp3"); // Change the filename to your actual sound file
 
         // Load the player image
         playerImage = loadImage("nerd.png");
@@ -100,61 +109,63 @@ public class Sketch1 extends PApplet {
     }
 
     public void draw() {
-        background(0);
+    background(0);
 
-        // Draw the button only if it hasn't been pressed
-        if (!startButtonPressed) {
-            fill(100, 100, 100);
-            rect(startButtonTopLeftX, startButtonTopLeftY, startButtonBottomRightX - startButtonTopLeftX,
-                    startButtonBottomRightY - startButtonTopLeftY);
+    // Draw the button only if it hasn't been pressed
+    if (!startButtonPressed) {
+        fill(100, 100, 100);
+        rect(startButtonTopLeftX, startButtonTopLeftY, startButtonBottomRightX - startButtonTopLeftX,
+                startButtonBottomRightY - startButtonTopLeftY);
 
-            // Check if the mouse is over the button
-            if (isMouseInsideButton()) {
-                fill(255);
-                // Add any additional information or actions when the mouse is over the button
-            }
-        }
-
-        if (level == 1) {
-            // Level 1: Start Menu
-            image(startMenu, 0, 0, width, height);
-        } else if (level == 2) {
-            // Level 2: How to Play Menu
-            image(howToMenu, 0, 0, width, height);
-        } else if (level >= 3 && level <= 5) {
-            // Levels 3-5: Gameplay
-            handleInput();
-            movePlayer();
-
-            // Display the player using the image
-            image(playerImage, playerX, playerY, playerSize, playerSize);
-
-            // Move and display player lasers
-            movePlayerLasers();
-            displayPlayerLasers();
-
-            // Check for collisions with the player laser
-            checkCollisions();
-
-            // Move and display circles
-            moveCircles();
-            displayCircles();
-
-            // Move and display lasers
-            moveLasers();
-            displayLasers();
-
-            // Enemy shooting logic
-            for (int i = 0; i < numCircles; i++) {
-                enemyShoot(i);
-            }
-        } else if (level == 6) {
-            // Level 6: Boss Fight
+        // Check if the mouse is over the button
+        if (isMouseInsideButton()) {
             fill(255);
-            textSize(32);
-            // No text boxes for level 6
+            // Add any additional information or actions when the mouse is over the button
         }
     }
+
+    if (level == 1) {
+        // Level 1: Start Menu
+        image(startMenu, 0, 0, width, height);
+    } else if (level == 2) {
+        // Level 2: How to Play Menu
+        image(howToMenu, 0, 0, width, height);
+    } else if (level >= 3 && level <= 5) {
+        // Levels 3-5: Gameplay
+        handleInput();
+        movePlayer();
+
+        // Display the player using the image
+        image(playerImage, playerX, playerY, playerSize, playerSize);
+
+        // Move and display player lasers
+        movePlayerLasers();
+        displayPlayerLasers();
+
+        // Check for collisions with the player laser
+        checkCollisions();
+
+        // Move and display circles
+        moveCircles();
+        displayCircles();
+
+        // Move and display lasers
+        moveLasers();
+        displayLasers();
+
+        // Enemy shooting logic
+        for (int i = 0; i < numCircles; i++) {
+            enemyShoot(i);
+        }
+    } else if (level == 6) {
+        // Level 6: Boss Fight
+        fill(255);
+        textSize(32);
+        // No text boxes for level 6
+    }
+    }
+
+
 
     void moveCircles() {
         // Move circles side to side with consistent speed
@@ -170,6 +181,12 @@ public class Sketch1 extends PApplet {
         }
     }
 
+    public void stop() {
+        // Close Minim when the sketch is stopped
+        minim.stop();
+        super.stop();
+    }
+
     void displayCircles() {
         // fill(255, 0, 0); // Remove this line
 
@@ -182,26 +199,25 @@ public class Sketch1 extends PApplet {
         }
     }
 
-    public void keyPressed() {
+   public void keyPressed() {
+    if (key == 'w' || key == 'W') {
+        blnUp = true;
+    } else if (key == 'd' || key == 'D') {
+        blnRight = true;
+    } else if (key == 's' || key == 'S') {
+        blnDown = true;
+    } else if (key == 'a' || key == 'A') {
+        blnLeft = true;
+    }
 
-        if (key == 'w' || key == 'W') {
-            blnUp = true;
-        } else if (key == 'd' || key == 'D') {
-            blnRight = true;
-        } else if (key == 's' || key == 'S') {
-            blnDown = true;
-        } else if (key == 'a' || key == 'A') {
-            blnLeft = true;
+    if (keyCode == ENTER) {
+        if (level == 1 || level == 5) {
+            // Move to the next level when Enter is pressed on the Menu or Boss Fight screen
+            level++;
         }
+    }
 
-        if (keyCode == ENTER) {
-            if (level == 1 || level == 5) {
-                // Move to the next level when Enter is pressed on the Menu or Boss Fight screen
-                level++;
-            }
-        }
-
-        if (key == ' ') {
+   if (key == ' ') {
             // Check if enough time has passed since the last shot
             long currentTime = millis();
             if (currentTime - lastSpacebarTime >= laserCooldown) {
@@ -211,7 +227,8 @@ public class Sketch1 extends PApplet {
                 lastSpacebarTime = currentTime;
             }
         }
-    }
+}
+
 
     public void keyReleased() {
 
@@ -295,7 +312,7 @@ public class Sketch1 extends PApplet {
                     }
                 }
                 if (isActive) {
-                    rect(laserX[i], laserY[i], 6, 35); 
+                    rect(laserX[i], laserY[i], 6, 35);
                 } else {
                     isLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
                 }
@@ -320,7 +337,7 @@ public class Sketch1 extends PApplet {
         fill(0, 0, 255); // Blue color for player lasers
         for (int i = 0; i < numPlayerLasers; i++) {
             if (isPlayerLaserActive[i]) {
-                rect(playerLaserX[i], playerLaserY[i], 5, 15); // Adjust size as needed
+                rect(playerLaserX[i], playerLaserY[i], 6, 30); // Adjust size as needed
             }
         }
     }
@@ -347,13 +364,18 @@ public class Sketch1 extends PApplet {
         return d < circleRadius;
     }
 
-    void shootPlayerLaser() {
+     void shootPlayerLaser() {
         for (int i = 0; i < numPlayerLasers; i++) {
             if (!isPlayerLaserActive[i]) {
                 playerLaserX[i] = playerX + playerSize / 2;
                 playerLaserY[i] = playerY;
                 isPlayerLaserActive[i] = true;
 
+                // Check if the sound is not already playing
+                if (!laserSound.isPlaying()) {
+                    laserSound.rewind();  // Rewind to the beginning
+                    laserSound.play();    // Play the laser sound
+                }
                 break;
             }
         }
