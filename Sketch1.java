@@ -127,19 +127,18 @@ public class Sketch1 extends PApplet {
                     startButtonBottomRightY - startButtonTopLeftY);
             if (isMouseInsideStartButton()) {
                 fill(255);
-                // Add any additional information or actions when the mouse is over the button
             }
         }
 
         // Draw the How to Play button
-        if (!howToPlayButtonPressed) {
+        if (!howToPlayButtonPressed ) {
             fill(100, 100, 100);
             rect(howToPlayButtonTopLeftX, howToPlayButtonTopLeftY,
                     howToPlayButtonBottomRightX - howToPlayButtonTopLeftX,
                     howToPlayButtonBottomRightY - howToPlayButtonTopLeftY);
             if (isMouseInsideHowToPlayButton()) {
                 fill(255);
-                // Add any additional information or actions when the mouse is over the button
+                
             }
         }
 
@@ -398,8 +397,9 @@ public class Sketch1 extends PApplet {
     public void mousePressed() {
         // Check if the mouse is pressed over the start button
         if (isMouseInsideStartButton() && !startButtonPressed) {
-            startButtonPressed = true; // Mark the start button as pressed
-            level = 3; // Set the level to start the game or show How to Play screen
+            startButtonPressed = true; 
+            howToPlayButtonPressed = true;
+            level = 5; // Set the level to start the game or show How to Play screen
         }
 
         // Check if the mouse is pressed over the How to Play button
