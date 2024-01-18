@@ -23,6 +23,7 @@ public class Sketch1 extends PApplet {
     // Declare background image variables
     PImage startMenu;
     PImage howToMenu;
+    PImage optionsMenu;
 
     int numCircles = 4; // Set the number of circles to 4
     float[] circleX = new float[numCircles];
@@ -51,7 +52,6 @@ public class Sketch1 extends PApplet {
     // Define a cooldown duration in milliseconds
     int laserCooldown = 450;
 
-
     // Start Button
     int startButtonTopLeftX = 185;
     int startButtonTopLeftY = 460;
@@ -60,11 +60,19 @@ public class Sketch1 extends PApplet {
 
     boolean startButtonPressed = false;
 
+    // How to Play Button
+    int howToPlayButtonTopLeftX = 183;
+    int howToPlayButtonTopLeftY = 604;
+    int howToPlayButtonBottomRightX = 417;
+    int howToPlayButtonBottomRightY = 660;
+
+    boolean howToPlayButtonPressed = false;
+
     // Audio Declarations
     Minim minim;
     AudioPlayer laserSound;
 
-    long lastSpacebarTime = 0; 
+    long lastSpacebarTime = 0;
 
     public void settings() {
         size(600, 750);
@@ -88,6 +96,7 @@ public class Sketch1 extends PApplet {
         // Load backgrounds
         startMenu = loadImage("START_MENU.png");
         howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
+        optionsMenu = loadImage("OPTIONS_MENU.png");
 
         // Initialize circle positions spaced equally for the first row
         for (int i = 0; i < numCircles; i++) {
@@ -109,63 +118,76 @@ public class Sketch1 extends PApplet {
     }
 
     public void draw() {
-    background(0);
+        background(0);
 
-    // Draw the button only if it hasn't been pressed
-    if (!startButtonPressed) {
-        fill(100, 100, 100);
-        rect(startButtonTopLeftX, startButtonTopLeftY, startButtonBottomRightX - startButtonTopLeftX,
-                startButtonBottomRightY - startButtonTopLeftY);
+        // Draw the start button
+        if (!startButtonPressed) {
+            fill(100, 100, 100);
+            rect(startButtonTopLeftX, startButtonTopLeftY, startButtonBottomRightX - startButtonTopLeftX,
+                    startButtonBottomRightY - startButtonTopLeftY);
+            if (isMouseInsideStartButton()) {
+                fill(255);
+                // Add any additional information or actions when the mouse is over the button
+            }
+        }
 
-        // Check if the mouse is over the button
-        if (isMouseInsideButton()) {
+        // Draw the How to Play button
+        if (!howToPlayButtonPressed) {
+            fill(100, 100, 100);
+            rect(howToPlayButtonTopLeftX, howToPlayButtonTopLeftY,
+                    howToPlayButtonBottomRightX - howToPlayButtonTopLeftX,
+                    howToPlayButtonBottomRightY - howToPlayButtonTopLeftY);
+            if (isMouseInsideHowToPlayButton()) {
+                fill(255);
+                // Add any additional information or actions when the mouse is over the button
+            }
+        }
+
+        // Draw other elements based on the current level
+        if (level == 1) {
+            image(startMenu, 0, 0, width, height);
+        } else if (level == 2) {
+            // Level 2: Options
+            // Implement Options screen if needed
+        } else if (level == 3) {
+            // Level 3: How to Play
+            image(howToMenu, 0, 0, width, height);
+        } else if (level == 4) {
+
+        } else if (level >= 5 && level <= 7) {
+            // Levels 3-5: Gameplay
+            handleInput();
+            movePlayer();
+
+            // Display the player using the image
+            image(playerImage, playerX, playerY, playerSize, playerSize);
+
+            // Move and display player lasers
+            movePlayerLasers();
+            displayPlayerLasers();
+
+            // Check for collisions with the player laser
+            checkCollisions();
+
+            // Move and display circles
+            moveCircles();
+            displayCircles();
+
+            // Move and display lasers
+            moveLasers();
+            displayLasers();
+
+            // Enemy shooting logic
+            for (int i = 0; i < numCircles; i++) {
+                enemyShoot(i);
+            }
+        } else if (level == 7) {
+            // Level 6: Boss Fight
             fill(255);
-            // Add any additional information or actions when the mouse is over the button
+            textSize(32);
+            // No text boxes for level 6
         }
     }
-
-    if (level == 1) {
-        // Level 1: Start Menu
-        image(startMenu, 0, 0, width, height);
-    } else if (level == 2) {
-        // Level 2: How to Play Menu
-        image(howToMenu, 0, 0, width, height);
-    } else if (level >= 3 && level <= 5) {
-        // Levels 3-5: Gameplay
-        handleInput();
-        movePlayer();
-
-        // Display the player using the image
-        image(playerImage, playerX, playerY, playerSize, playerSize);
-
-        // Move and display player lasers
-        movePlayerLasers();
-        displayPlayerLasers();
-
-        // Check for collisions with the player laser
-        checkCollisions();
-
-        // Move and display circles
-        moveCircles();
-        displayCircles();
-
-        // Move and display lasers
-        moveLasers();
-        displayLasers();
-
-        // Enemy shooting logic
-        for (int i = 0; i < numCircles; i++) {
-            enemyShoot(i);
-        }
-    } else if (level == 6) {
-        // Level 6: Boss Fight
-        fill(255);
-        textSize(32);
-        // No text boxes for level 6
-    }
-    }
-
-
 
     void moveCircles() {
         // Move circles side to side with consistent speed
@@ -199,25 +221,18 @@ public class Sketch1 extends PApplet {
         }
     }
 
-   public void keyPressed() {
-    if (key == 'w' || key == 'W') {
-        blnUp = true;
-    } else if (key == 'd' || key == 'D') {
-        blnRight = true;
-    } else if (key == 's' || key == 'S') {
-        blnDown = true;
-    } else if (key == 'a' || key == 'A') {
-        blnLeft = true;
-    }
-
-    if (keyCode == ENTER) {
-        if (level == 1 || level == 5) {
-            // Move to the next level when Enter is pressed on the Menu or Boss Fight screen
-            level++;
+    public void keyPressed() {
+        if (key == 'w' || key == 'W') {
+            blnUp = true;
+        } else if (key == 'd' || key == 'D') {
+            blnRight = true;
+        } else if (key == 's' || key == 'S') {
+            blnDown = true;
+        } else if (key == 'a' || key == 'A') {
+            blnLeft = true;
         }
-    }
 
-   if (key == ' ') {
+        if (key == ' ') {
             // Check if enough time has passed since the last shot
             long currentTime = millis();
             if (currentTime - lastSpacebarTime >= laserCooldown) {
@@ -227,8 +242,7 @@ public class Sketch1 extends PApplet {
                 lastSpacebarTime = currentTime;
             }
         }
-}
-
+    }
 
     public void keyReleased() {
 
@@ -364,7 +378,7 @@ public class Sketch1 extends PApplet {
         return d < circleRadius;
     }
 
-     void shootPlayerLaser() {
+    void shootPlayerLaser() {
         for (int i = 0; i < numPlayerLasers; i++) {
             if (!isPlayerLaserActive[i]) {
                 playerLaserX[i] = playerX + playerSize / 2;
@@ -373,8 +387,8 @@ public class Sketch1 extends PApplet {
 
                 // Check if the sound is not already playing
                 if (!laserSound.isPlaying()) {
-                    laserSound.rewind();  // Rewind to the beginning
-                    laserSound.play();    // Play the laser sound
+                    laserSound.rewind(); // Rewind to the beginning
+                    laserSound.play(); // Play the laser sound
                 }
                 break;
             }
@@ -382,18 +396,32 @@ public class Sketch1 extends PApplet {
     }
 
     public void mousePressed() {
-        // Check if the mouse is pressed over the button
-        if (isMouseInsideButton()) {
-            startButtonPressed = true; // Mark the button as pressed
-            level = 3; // Set the level to start the game
+        // Check if the mouse is pressed over the start button
+        if (isMouseInsideStartButton() && !startButtonPressed) {
+            startButtonPressed = true; // Mark the start button as pressed
+            level = 3; // Set the level to start the game or show How to Play screen
+        }
+
+        // Check if the mouse is pressed over the How to Play button
+        if (isMouseInsideHowToPlayButton() && !howToPlayButtonPressed) {
+            howToPlayButtonPressed = true; // Mark the How to Play button as pressed
+            level = 3; // Set the level to show How to Play screen
         }
     }
 
-    boolean isMouseInsideButton() {
+    boolean isMouseInsideStartButton() {
         // Check if the mouse coordinates are within the button boundaries
         return mouseX >= startButtonTopLeftX &&
                 mouseX <= startButtonBottomRightX &&
                 mouseY >= startButtonTopLeftY &&
                 mouseY <= startButtonBottomRightY;
+    }
+
+    boolean isMouseInsideHowToPlayButton() {
+        // Check if the mouse coordinates are within the How to Play button boundaries
+        return mouseX >= howToPlayButtonTopLeftX &&
+                mouseX <= howToPlayButtonBottomRightX &&
+                mouseY >= howToPlayButtonTopLeftY &&
+                mouseY <= howToPlayButtonBottomRightY;
     }
 }
