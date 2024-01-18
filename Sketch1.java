@@ -1,6 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
-import ddf.minim.*;
+
 
 public class Sketch1 extends PApplet {
 
@@ -78,9 +78,7 @@ public class Sketch1 extends PApplet {
 
     boolean blnMenuButtonPressed = false;
 
-    // Audio Declarations
-    Minim minim;
-    AudioPlayer laserSound;
+  
 
     long lastSpacebarTime = 0;
 
@@ -93,10 +91,7 @@ public class Sketch1 extends PApplet {
         intPlayerX = width / 2;
         intPlayerY = height - 80; // Start at the bottom center slightly spaced up
 
-        // Audio
-        minim = new Minim(this);
-        laserSound = minim.loadFile("lasergun.mp3"); // Change the filename to your actual sound file
-
+    
         // Load the player image
         playerImage = loadImage("nerd.png");
 
@@ -228,15 +223,7 @@ public class Sketch1 extends PApplet {
         }
     }
 
-    public void stop() {
-        // Close Minim when the sketch is stopped
-        minim.stop();
-        super.stop();
-    }
-
     void displayCircles() {
-        // fill(255, 0, 0); // Remove this line
-
         // Display circles for the first row
         for (int i = 0; i < intNumCircles; i++) {
             if (!blnIsCircleHit[i]) {
@@ -409,12 +396,6 @@ public class Sketch1 extends PApplet {
                 fltPlayerLaserX[i] = intPlayerX + intPlayerSize / 2;
                 fltPlayerLaserY[i] = intPlayerY;
                 blnIsPlayerLaserActive[i] = true;
-
-                // Check if the sound is not already playing
-                if (!laserSound.isPlaying()) {
-                    laserSound.rewind(); // Rewind to the beginning
-                    laserSound.play(); // Play the laser sound
-                }
                 break;
             }
         }
