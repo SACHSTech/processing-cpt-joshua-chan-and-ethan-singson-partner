@@ -1,6 +1,5 @@
 import processing.core.PApplet;
 import processing.core.PImage;
-
 public class Sketch1 extends PApplet {
 
     // Movement key variables
@@ -9,6 +8,7 @@ public class Sketch1 extends PApplet {
     boolean blnLeft = false;
     boolean blnRight = false;
 
+    // Player Variables
     int intLevel = 1;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
@@ -25,7 +25,9 @@ public class Sketch1 extends PApplet {
     PImage optionsMenu;
     PImage level1;
     PImage health;
+    PImage gameOverScreen;
 
+    // Enemy Variables
     int intNumCircles = 10; // Set the number of circles to 4
     float[] fltCircleX = new float[intNumCircles];
     float[] fltCircleSpeeds = new float[intNumCircles];
@@ -37,7 +39,7 @@ public class Sketch1 extends PApplet {
     boolean[] blnIsCircleHit = new boolean[intNumCircles];
 
     // Laser variables
-    int intNumLasers = 5000;
+    int intNumLasers = 3000;
     float[] fltLaserX = new float[intNumLasers];
     float[] fltLaserY = new float[intNumLasers];
     float fltLaserSpeed = 5 ;
@@ -108,7 +110,8 @@ public class Sketch1 extends PApplet {
         // Load backgroundsa
         startMenu = loadImage("START_MENU.png");
         howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
-        optionsMenu = loadImage("OPTIONS_MENU.png");
+        optionsMenu = loadImage("options.png");
+        gameOverScreen = loadImage("gameover.png");
         level1 = loadImage("level1.png");
         health = loadImage("health.png");
         health.resize(60, 60);
@@ -178,11 +181,11 @@ public class Sketch1 extends PApplet {
             image(startMenu, 0, 0, width, height);
         } else if (intLevel == 2) {
             // Level 2: Options
-            // Implement Options screen if needed
+            image(optionsMenu, 0, 0, width, height);
         } else if (intLevel == 3) {
             // Level 3: How to Play
             image(howToMenu, 0, 0, width, height);
-        } else if (intLevel >= 4 && intLevel <= 7) {
+        } else if (intLevel >= 4 && intLevel <= 6) {
             // Draw health.png at the top right of the screen
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
@@ -217,7 +220,7 @@ public class Sketch1 extends PApplet {
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
             }
-        } else if (intLevel == 7) {
+        } else if (intLevel == 6) {
             // Level 6: Boss Fight
             fill(255);
             textSize(32);
@@ -415,7 +418,8 @@ public class Sketch1 extends PApplet {
 
                 // Check if player health is zero, and handle game over logic if needed
                 if (intPlayerHealth <= 0) {
-                    // Game over logic
+                    
+                    image(gameOverScreen, 0, 0);
                 }
             }
         }
@@ -459,12 +463,15 @@ public class Sketch1 extends PApplet {
         if (isMouseInsideMenuButton() && !blnMenuButtonPressed) {
             blnMenuButtonPressed = true; // Mark the Menu button as pressed
             howToPlayButtonPressed = false;
+            blnOptionsButtonPressed = false; 
             intLevel = 1; // Set the level to show Menu screen
         }
 
         // Check if the mouse is pressed over the options button
         if (isMouseInsideOptionsButton() && !blnOptionsButtonPressed) {
             blnOptionsButtonPressed = true; // Mark the options button as pressed
+            howToPlayButtonPressed = true; 
+            blnMenuButtonPressed = false; 
             intLevel = 2;
         }
     }
