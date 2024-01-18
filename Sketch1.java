@@ -10,11 +10,11 @@ public class Sketch1 extends PApplet {
     boolean blnLeft = false;
     boolean blnRight = false;
 
-    int level = 1;
-    int playerX, playerY;
-    int playerSpeed = 4;
-    int playerSize = 60;
-    int playerHealth = 3;
+    int intLevel = 1;
+    int intPlayerX, intPlayerY;
+    int intPlayerSpeed = 4;
+    int intPlayerSize = 60;
+    int intPlayerHealth = 3;
 
     // Declare player image variable
     PImage playerImage;
@@ -24,49 +24,59 @@ public class Sketch1 extends PApplet {
     PImage startMenu;
     PImage howToMenu;
     PImage optionsMenu;
+    PImage level1;
 
-    int numCircles = 4; // Set the number of circles to 4
-    float[] circleX = new float[numCircles];
-    float[] circleSpeeds = new float[numCircles];
-    float circleSpacing = 120;
-    float circleY;
-    float circleDiameter = 50;
+    int intNumCircles = 4; // Set the number of circles to 4
+    float[] fltCircleX = new float[intNumCircles];
+    float[] fltCircleSpeeds = new float[intNumCircles];
+    float fltCircleSpacing = 120;
+    float fltCircleY;
+    float fltCircleDiameter = 50;
 
     // array to track whether each circle has been hit
-    boolean[] isCircleHit = new boolean[numCircles];
+    boolean[] blnIsCircleHit = new boolean[intNumCircles];
 
     // Laser variables
-    int numLasers = 5000;
-    float[] laserX = new float[numLasers];
-    float[] laserY = new float[numLasers];
-    float laserSpeed = 7;
-    boolean[] isLaserActive = new boolean[numLasers];
+    int intNumLasers = 5000;
+    float[] fltLaserX = new float[intNumLasers];
+    float[] fltLaserY = new float[intNumLasers];
+    float fltLaserSpeed = 7;
+    boolean[] blnIsLaserActive = new boolean[intNumLasers];
 
     // Laser variables for the player
-    int numPlayerLasers = 1000;
-    float[] playerLaserX = new float[numPlayerLasers];
-    float[] playerLaserY = new float[numPlayerLasers];
-    float playerLaserSpeed = 7;
-    boolean[] isPlayerLaserActive = new boolean[numPlayerLasers];
+    int intNumPlayerLasers = 1000;
+    float[] fltPlayerLaserX = new float[intNumPlayerLasers];
+    float[] fltPlayerLaserY = new float[intNumPlayerLasers];
+    float fltPlayerLaserSpeed = 7;
+    boolean[] blnIsPlayerLaserActive = new boolean[intNumPlayerLasers];
 
     // Define a cooldown duration in milliseconds
-    int laserCooldown = 450;
+    int intLaserCooldown = 450;
 
     // Start Button
-    int startButtonTopLeftX = 185;
-    int startButtonTopLeftY = 460;
-    int startButtonBottomRightX = 417;
-    int startButtonBottomRightY = 515;
+    int intStartTopLeftX = 185;
+    int intStartTopLeftY = 460;
+    int intStartBottomRightX = 417;
+    int intStartBottomRightY = 515;
 
-    boolean startButtonPressed = false;
+    boolean blnStartPressed = false;
 
     // How to Play Button
-    int howToPlayButtonTopLeftX = 183;
-    int howToPlayButtonTopLeftY = 604;
-    int howToPlayButtonBottomRightX = 417;
-    int howToPlayButtonBottomRightY = 660;
+    int intHTPButtonTopLeftX = 183;
+    int intHTPButtonTopLeftY = 604;
+    int intHTPButtonBottomRightX = 417;
+    int intHTPButtonBottomRightY = 660;
 
     boolean howToPlayButtonPressed = false;
+
+    // Back to Menu Button
+
+    int intMenuButtonTopLeftX = 497;
+    int intMenuButtonTopLeftY = 691;
+    int intMenuButtonBottomRightX = 590;
+    int intMenuButtonBottomRightY = 727;
+
+    boolean blnMenuButtonPressed = false;
 
     // Audio Declarations
     Minim minim;
@@ -80,8 +90,8 @@ public class Sketch1 extends PApplet {
 
     public void setup() {
         background(255);
-        playerX = width / 2;
-        playerY = height - 80; // Start at the bottom center slightly spaced up
+        intPlayerX = width / 2;
+        intPlayerY = height - 80; // Start at the bottom center slightly spaced up
 
         // Audio
         minim = new Minim(this);
@@ -97,34 +107,35 @@ public class Sketch1 extends PApplet {
         startMenu = loadImage("START_MENU.png");
         howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
         optionsMenu = loadImage("OPTIONS_MENU.png");
+        level1 = loadImage("level1.png");
 
         // Initialize circle positions spaced equally for the first row
-        for (int i = 0; i < numCircles; i++) {
-            circleX[i] = (width / 2) - ((numCircles - 1) * circleSpacing / 2) + (i * circleSpacing);
-            circleSpeeds[i] = (float) 1.5; // Set a fixed speed for all circles in the first row
+        for (int i = 0; i < intNumCircles; i++) {
+            fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
+            fltCircleSpeeds[i] = (float) 1.5; // Set a fixed speed for all circles in the first row
         }
 
-        circleY = (float) (height / 4.2);
+        fltCircleY = (float) (height / 4.2);
 
         // Initialize laser positions and status
-        for (int i = 0; i < numLasers; i++) {
-            isLaserActive[i] = false;
+        for (int i = 0; i < intNumLasers; i++) {
+            blnIsLaserActive[i] = false;
         }
 
         // Initialize player lasers
-        for (int i = 0; i < numPlayerLasers; i++) {
-            isPlayerLaserActive[i] = false;
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            blnIsPlayerLaserActive[i] = false;
         }
     }
 
     public void draw() {
-        background(0);
+        background(level1);
 
         // Draw the start button
-        if (!startButtonPressed) {
+        if (!blnStartPressed) {
             fill(100, 100, 100);
-            rect(startButtonTopLeftX, startButtonTopLeftY, startButtonBottomRightX - startButtonTopLeftX,
-                    startButtonBottomRightY - startButtonTopLeftY);
+            rect(intStartTopLeftX, intStartTopLeftY, intStartBottomRightX - intStartTopLeftX,
+                    intStartBottomRightY - intStartTopLeftY);
             if (isMouseInsideStartButton()) {
                 fill(255);
             }
@@ -133,33 +144,48 @@ public class Sketch1 extends PApplet {
         // Draw the How to Play button
         if (!howToPlayButtonPressed ) {
             fill(100, 100, 100);
-            rect(howToPlayButtonTopLeftX, howToPlayButtonTopLeftY,
-                    howToPlayButtonBottomRightX - howToPlayButtonTopLeftX,
-                    howToPlayButtonBottomRightY - howToPlayButtonTopLeftY);
+            rect(intHTPButtonTopLeftX, intHTPButtonTopLeftY,
+                    intHTPButtonBottomRightX - intHTPButtonTopLeftX,
+                    intHTPButtonBottomRightY - intHTPButtonTopLeftY);
             if (isMouseInsideHowToPlayButton()) {
                 fill(255);
                 
             }
         }
 
+        // Draw the back to menu button
+
+        if(!blnMenuButtonPressed ) {
+            fill(100, 100, 100);
+            rect(intMenuButtonTopLeftX, intMenuButtonTopLeftY,
+            intMenuButtonBottomRightX - intMenuButtonTopLeftX,
+                    intMenuButtonBottomRightY - intMenuButtonTopLeftY);
+            if (isMouseInsideMenuButton()) {
+                fill(255);
+                
+            }
+
+
+        }
+
         // Draw other elements based on the current level
-        if (level == 1) {
+        if (intLevel == 1) {
             image(startMenu, 0, 0, width, height);
-        } else if (level == 2) {
+        } else if (intLevel == 2) {
             // Level 2: Options
             // Implement Options screen if needed
-        } else if (level == 3) {
+        } else if (intLevel == 3) {
             // Level 3: How to Play
             image(howToMenu, 0, 0, width, height);
-        } else if (level == 4) {
+        } else if (intLevel == 4) {
 
-        } else if (level >= 5 && level <= 7) {
+        } else if (intLevel >= 5 && intLevel <= 7) {
             // Levels 3-5: Gameplay
             handleInput();
             movePlayer();
 
             // Display the player using the image
-            image(playerImage, playerX, playerY, playerSize, playerSize);
+            image(playerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -177,10 +203,10 @@ public class Sketch1 extends PApplet {
             displayLasers();
 
             // Enemy shooting logic
-            for (int i = 0; i < numCircles; i++) {
+            for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
             }
-        } else if (level == 7) {
+        } else if (intLevel == 7) {
             // Level 6: Boss Fight
             fill(255);
             textSize(32);
@@ -190,14 +216,14 @@ public class Sketch1 extends PApplet {
 
     void moveCircles() {
         // Move circles side to side with consistent speed
-        for (int i = 0; i < numCircles; i++) {
-            circleX[i] += circleSpeeds[i];
+        for (int i = 0; i < intNumCircles; i++) {
+            fltCircleX[i] += fltCircleSpeeds[i];
 
             // Reverse direction if the circle reaches the screen edges
-            if (circleX[i] > width - circleDiameter || circleX[i] < 0) {
-                circleSpeeds[i] *= -1;
+            if (fltCircleX[i] > width - fltCircleDiameter || fltCircleX[i] < 0) {
+                fltCircleSpeeds[i] *= -1;
                 // Ensure the circle stays within the screen bounds
-                circleX[i] = constrain(circleX[i], 0, width - circleDiameter);
+                fltCircleX[i] = constrain(fltCircleX[i], 0, width - fltCircleDiameter);
             }
         }
     }
@@ -212,10 +238,10 @@ public class Sketch1 extends PApplet {
         // fill(255, 0, 0); // Remove this line
 
         // Display circles for the first row
-        for (int i = 0; i < numCircles; i++) {
-            if (!isCircleHit[i]) {
-                image(enemyImage, circleX[i] - circleDiameter / 2, circleY - circleDiameter / 2, circleDiameter,
-                        circleDiameter);
+        for (int i = 0; i < intNumCircles; i++) {
+            if (!blnIsCircleHit[i]) {
+                image(enemyImage, fltCircleX[i] - fltCircleDiameter / 2, fltCircleY - fltCircleDiameter / 2, fltCircleDiameter,
+                        fltCircleDiameter);
             }
         }
     }
@@ -234,7 +260,7 @@ public class Sketch1 extends PApplet {
         if (key == ' ') {
             // Check if enough time has passed since the last shot
             long currentTime = millis();
-            if (currentTime - lastSpacebarTime >= laserCooldown) {
+            if (currentTime - lastSpacebarTime >= intLaserCooldown) {
                 // Shoot a player laser
                 shootPlayerLaser();
                 // Update the last spacebar press time
@@ -259,41 +285,41 @@ public class Sketch1 extends PApplet {
     void handleInput() {
 
         if (blnUp) {
-            playerY -= playerSpeed;
+            intPlayerY -= intPlayerSpeed;
         }
         if (blnDown) {
-            playerY += playerSpeed;
+            intPlayerY += intPlayerSpeed;
         }
         if (blnLeft) {
-            playerX -= playerSpeed;
+            intPlayerX -= intPlayerSpeed;
         }
         if (blnRight) {
-            playerX += playerSpeed;
+            intPlayerX += intPlayerSpeed;
         }
     }
 
     void movePlayer() {
         // Add boundary checks to keep the player within the screen bounds
-        playerX = constrain(playerX, 0, width - playerSize);
+        intPlayerX = constrain(intPlayerX, 0, width - intPlayerSize);
 
         // Restrict the player from going above the top third
-        playerY = constrain(playerY, (int) (height / 1.5), height - playerSize);
+        intPlayerY = constrain(intPlayerY, (int) (height / 1.5), height - intPlayerSize);
     }
 
     void displayPlayer() {
         fill(0, 255, 0); // Green color for the player
-        rect(playerX, playerY, playerSize, playerSize);
+        rect(intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
     }
 
     void enemyShoot(int circleIndex) {
         // Randomly decide when to shoot
         if (random(1) < 0.01) {
             // Activate a laser at the current circle position
-            for (int j = 0; j < numLasers; j++) {
-                if (!isLaserActive[j]) {
-                    laserX[j] = circleX[circleIndex];
-                    laserY[j] = circleY;
-                    isLaserActive[j] = true;
+            for (int j = 0; j < intNumLasers; j++) {
+                if (!blnIsLaserActive[j]) {
+                    fltLaserX[j] = fltCircleX[circleIndex];
+                    fltLaserY[j] = fltCircleY;
+                    blnIsLaserActive[j] = true;
                     break; // Exit the loop after activating one laser
                 }
             }
@@ -301,12 +327,12 @@ public class Sketch1 extends PApplet {
     }
 
     void moveLasers() {
-        for (int i = 0; i < numLasers; i++) {
-            if (isLaserActive[i]) {
-                laserY[i] += laserSpeed;
+        for (int i = 0; i < intNumLasers; i++) {
+            if (blnIsLaserActive[i]) {
+                fltLaserY[i] += fltLaserSpeed;
                 // Deactivate laser when it goes off-screen
-                if (laserY[i] < 0) {
-                    isLaserActive[i] = false;
+                if (fltLaserY[i] < 0) {
+                    blnIsLaserActive[i] = false;
                 }
             }
         }
@@ -314,33 +340,33 @@ public class Sketch1 extends PApplet {
 
     void displayLasers() {
         fill(128, 0, 128);
-        for (int i = 0; i < numLasers; i++) {
-            if (isLaserActive[i]) {
+        for (int i = 0; i < intNumLasers; i++) {
+            if (blnIsLaserActive[i]) {
                 // Check if the corresponding circle is not hit before displaying the laser
                 boolean isActive = true;
-                for (int j = 0; j < numCircles; j++) {
-                    if (circleHit(laserX[i], laserY[i], circleX[j], circleY, circleDiameter / 2) && isCircleHit[j]) {
+                for (int j = 0; j < intNumCircles; j++) {
+                    if (circleHit(fltLaserX[i], fltLaserY[i], fltCircleX[j], fltCircleY, fltCircleDiameter / 2) && blnIsCircleHit[j]) {
                         isActive = false;
                         break;
                     }
                 }
                 if (isActive) {
-                    rect(laserX[i], laserY[i], 6, 35);
+                    rect(fltLaserX[i], fltLaserY[i], 6, 35);
                 } else {
-                    isLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
+                    blnIsLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
                 }
             }
         }
     }
 
     void movePlayerLasers() {
-        for (int i = 0; i < numPlayerLasers; i++) {
-            if (isPlayerLaserActive[i]) {
-                playerLaserY[i] -= playerLaserSpeed;
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            if (blnIsPlayerLaserActive[i]) {
+                fltPlayerLaserY[i] -= fltPlayerLaserSpeed;
 
                 // Deactivate player laser when it goes off-screen
-                if (playerLaserY[i] < 0) {
-                    isPlayerLaserActive[i] = false;
+                if (fltPlayerLaserY[i] < 0) {
+                    blnIsPlayerLaserActive[i] = false;
                 }
             }
         }
@@ -348,41 +374,41 @@ public class Sketch1 extends PApplet {
 
     void displayPlayerLasers() {
         fill(0, 0, 255); // Blue color for player lasers
-        for (int i = 0; i < numPlayerLasers; i++) {
-            if (isPlayerLaserActive[i]) {
-                rect(playerLaserX[i], playerLaserY[i], 6, 30); // Adjust size as needed
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            if (blnIsPlayerLaserActive[i]) {
+                rect(fltPlayerLaserX[i], fltPlayerLaserY[i], 6, 30); // Adjust size as needed
             }
         }
     }
 
     void checkCollisions() {
-        for (int i = 0; i < numPlayerLasers; i++) {
-            for (int j = 0; j < numCircles; j++) {
-                if (isPlayerLaserActive[i] && !isCircleHit[j] &&
-                        circleHit(playerLaserX[i], playerLaserY[i], circleX[j], circleY, circleDiameter / 2)) {
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            for (int j = 0; j < intNumCircles; j++) {
+                if (blnIsPlayerLaserActive[i] && !blnIsCircleHit[j] &&
+                        circleHit(fltPlayerLaserX[i], fltPlayerLaserY[i], fltCircleX[j], fltCircleY, fltCircleDiameter / 2)) {
                     // Deactivate player laser
-                    isPlayerLaserActive[i] = false;
+                    blnIsPlayerLaserActive[i] = false;
 
                     // Mark the circle as hit and move it off-screen
-                    isCircleHit[j] = true;
-                    circleX[j] = -1000; // Move the circle off-screen
+                    blnIsCircleHit[j] = true;
+                    fltCircleX[j] = -1000; // Move the circle off-screen
                 }
             }
         }
     }
 
     // Helper function to check if a point is inside a circle
-    boolean circleHit(float pointX, float pointY, float circleX, float circleY, float circleRadius) {
-        float d = dist(pointX, pointY, circleX, circleY);
+    boolean circleHit(float pointX, float pointY, float fltCircleX, float fltCircleY, float circleRadius) {
+        float d = dist(pointX, pointY, fltCircleX, fltCircleY);
         return d < circleRadius;
     }
 
     void shootPlayerLaser() {
-        for (int i = 0; i < numPlayerLasers; i++) {
-            if (!isPlayerLaserActive[i]) {
-                playerLaserX[i] = playerX + playerSize / 2;
-                playerLaserY[i] = playerY;
-                isPlayerLaserActive[i] = true;
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            if (!blnIsPlayerLaserActive[i]) {
+                fltPlayerLaserX[i] = intPlayerX + intPlayerSize / 2;
+                fltPlayerLaserY[i] = intPlayerY;
+                blnIsPlayerLaserActive[i] = true;
 
                 // Check if the sound is not already playing
                 if (!laserSound.isPlaying()) {
@@ -394,34 +420,51 @@ public class Sketch1 extends PApplet {
         }
     }
 
-    public void mousePressed() {
-        // Check if the mouse is pressed over the start button
-        if (isMouseInsideStartButton() && !startButtonPressed) {
-            startButtonPressed = true; 
-            howToPlayButtonPressed = true;
-            level = 5; // Set the level to start the game or show How to Play screen
+    
+        public void mousePressed() {
+            // Check if the mouse is pressed over the start button
+            if (isMouseInsideStartButton() && !blnStartPressed) {
+                blnStartPressed = true;
+                howToPlayButtonPressed = true;
+                intLevel = 5; // Set the level to start the game or show How to Play screen
+            }
+    
+            // Check if the mouse is pressed over the How to Play button
+            if (isMouseInsideHowToPlayButton() && !howToPlayButtonPressed) {
+                howToPlayButtonPressed = true; // Mark the How to Play button as pressed
+                intLevel = 3; // Set the level to show How to Play screen
+            }
+    
+            // Check if the mouse is pressed over the back to menu button
+            if (isMouseInsideMenuButton() && !blnMenuButtonPressed) {
+                blnMenuButtonPressed = true; // Mark the Menu button as pressed
+                intLevel = 1; // Set the level to show Menu screen
+            }
+        }
+    
+        boolean isMouseInsideMenuButton() {
+            return mouseX >= intMenuButtonTopLeftX &&
+                   mouseX <= intMenuButtonBottomRightX &&
+                   mouseY >= intMenuButtonTopLeftY &&
+                   mouseY <= intMenuButtonBottomRightY;
         }
 
-        // Check if the mouse is pressed over the How to Play button
-        if (isMouseInsideHowToPlayButton() && !howToPlayButtonPressed) {
-            howToPlayButtonPressed = true; // Mark the How to Play button as pressed
-            level = 3; // Set the level to show How to Play screen
-        }
-    }
 
     boolean isMouseInsideStartButton() {
         // Check if the mouse coordinates are within the button boundaries
-        return mouseX >= startButtonTopLeftX &&
-                mouseX <= startButtonBottomRightX &&
-                mouseY >= startButtonTopLeftY &&
-                mouseY <= startButtonBottomRightY;
+        return mouseX >= intStartTopLeftX &&
+                mouseX <= intStartBottomRightX &&
+                mouseY >= intStartTopLeftY &&
+                mouseY <= intStartBottomRightY;
     }
 
     boolean isMouseInsideHowToPlayButton() {
         // Check if the mouse coordinates are within the How to Play button boundaries
-        return mouseX >= howToPlayButtonTopLeftX &&
-                mouseX <= howToPlayButtonBottomRightX &&
-                mouseY >= howToPlayButtonTopLeftY &&
-                mouseY <= howToPlayButtonBottomRightY;
+        return mouseX >= intHTPButtonTopLeftX &&
+                mouseX <= intHTPButtonBottomRightX &&
+                mouseY >= intHTPButtonTopLeftY &&
+                mouseY <= intHTPButtonBottomRightY;
     }
+    
+   
 }
