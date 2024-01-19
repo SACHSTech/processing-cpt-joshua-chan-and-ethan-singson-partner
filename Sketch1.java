@@ -1,5 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
+
 public class Sketch1 extends PApplet {
 
     // Movement key variables
@@ -28,7 +29,7 @@ public class Sketch1 extends PApplet {
     PImage gameOverScreen;
 
     // Enemy Variables
-    int intNumCircles = 10; // Set the number of circles to 4
+    int intNumCircles = 7; // Set the number of circles to 4
     float[] fltCircleX = new float[intNumCircles];
     float[] fltCircleSpeeds = new float[intNumCircles];
     float fltCircleSpacing = 120;
@@ -42,15 +43,14 @@ public class Sketch1 extends PApplet {
     int intNumLasers = 3000;
     float[] fltLaserX = new float[intNumLasers];
     float[] fltLaserY = new float[intNumLasers];
-    float fltLaserSpeed = 5 ;
+    float fltLaserSpeed = 5;
     boolean[] blnIsLaserActive = new boolean[intNumLasers];
 
     // Laser variables for the player
     int intNumPlayerLasers = 1000;
     float[] fltPlayerLaserX = new float[intNumPlayerLasers];
     float[] fltPlayerLaserY = new float[intNumPlayerLasers];
-    float fltPlayerLaserSpeed = 7
-    ;
+    float fltPlayerLaserSpeed = 7;
     boolean[] blnIsPlayerLaserActive = new boolean[intNumPlayerLasers];
 
     // Define a cooldown duration in milliseconds
@@ -70,7 +70,7 @@ public class Sketch1 extends PApplet {
     int intHTPButtonBottomRightX = 417;
     int intHTPButtonBottomRightY = 660;
 
-    boolean howToPlayButtonPressed = false;
+    boolean blnHTPButtonPressed = false;
 
     // Back to Menu Button
 
@@ -89,6 +89,15 @@ public class Sketch1 extends PApplet {
     int intOptionsButtonBottomRightY = 588;
 
     boolean blnOptionsButtonPressed = false;
+
+    // Game Over Button
+
+    int intGameOverButtonTopLeftX = 136;
+    int intGameOverButtonTopLeftY = 407;
+    int intGameOverButtonBottomRightX = 467;
+    int intGameOverButtonBottomRightY = 444;
+
+    boolean blnGameOverButtonPressed = false;
 
     long lastSpacebarTime = 0;
 
@@ -117,11 +126,10 @@ public class Sketch1 extends PApplet {
         health.resize(60, 60);
 
         // Initialize circle speeds with random values
-    for (int i = 0; i < intNumCircles; i++) {
-        fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
-        fltCircleSpeeds[i] = random(1.0f, 3.0f); // Set random speeds for each circle
-    }
-
+        for (int i = 0; i < intNumCircles; i++) {
+            fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
+            fltCircleSpeeds[i] = random(1.0f, 3.0f); // Set random speeds for each circle
+        }
 
         fltCircleY = (float) (height / 4.2);
 
@@ -150,7 +158,7 @@ public class Sketch1 extends PApplet {
         }
 
         // Draw the How to Play button
-        if (!howToPlayButtonPressed) {
+        if (!blnHTPButtonPressed) {
             fill(100, 100, 100);
             rect(intHTPButtonTopLeftX, intHTPButtonTopLeftY,
                     intHTPButtonBottomRightX - intHTPButtonTopLeftX,
@@ -173,6 +181,17 @@ public class Sketch1 extends PApplet {
 
             }
 
+        }
+
+        // Draw the Game Over button
+        if (intLevel == 7 && !blnGameOverButtonPressed) {
+            fill(100, 100, 100);
+            rect(intGameOverButtonTopLeftX, intGameOverButtonTopLeftY,
+                    intGameOverButtonBottomRightX - intGameOverButtonTopLeftX,
+                    intGameOverButtonBottomRightY - intGameOverButtonTopLeftY);
+            if (isMouseInsideGameOverButton()) {
+                fill(255);
+            }
         }
 
         // Draw other elements based on the current level
@@ -220,11 +239,8 @@ public class Sketch1 extends PApplet {
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
             }
-        } else if (intLevel == 6) {
-            // Level 6: Boss Fight
-            fill(255);
-            textSize(32);
-            // No text boxes for level 6
+        } else if (intLevel == 7) {
+            image(gameOverScreen, 0, 0, width, height);
         }
     }
 
@@ -346,7 +362,7 @@ public class Sketch1 extends PApplet {
     }
 
     void displayLasers() {
-        fill(128, 0, 128);
+        fill(255, 255, 255);
         for (int i = 0; i < intNumLasers; i++) {
             if (blnIsLaserActive[i]) {
                 // Check if the corresponding circle is not hit before displaying the laser
@@ -360,6 +376,8 @@ public class Sketch1 extends PApplet {
                 }
                 if (isActive) {
                     rect(fltLaserX[i], fltLaserY[i], 6, 35);
+                    stroke(255, 255, 255);
+                    strokeWeight(2);
                 } else {
                     blnIsLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
                 }
@@ -382,9 +400,10 @@ public class Sketch1 extends PApplet {
 
     void displayPlayerLasers() {
         fill(0, 0, 255); // Blue color for player lasers
+        noStroke();
         for (int i = 0; i < intNumPlayerLasers; i++) {
             if (blnIsPlayerLaserActive[i]) {
-                rect(fltPlayerLaserX[i], fltPlayerLaserY[i], 6, 30); // Adjust size as needed
+                rect(fltPlayerLaserX[i], fltPlayerLaserY[i], 8, 30); // Adjust size as needed
             }
         }
     }
@@ -418,8 +437,10 @@ public class Sketch1 extends PApplet {
 
                 // Check if player health is zero, and handle game over logic if needed
                 if (intPlayerHealth <= 0) {
-                    
-                    image(gameOverScreen, 0, 0);
+
+                   intLevel = 7;
+                   blnGameOverButtonPressed = false;
+
                 }
             }
         }
@@ -445,16 +466,17 @@ public class Sketch1 extends PApplet {
     public void mousePressed() {
         // Check if the mouse is pressed over the start button
         if (isMouseInsideStartButton() && !blnStartPressed) {
+            resetGame();  // Reset the game when the Start Game button is pressed
             blnStartPressed = true;
-            howToPlayButtonPressed = true;
+            blnHTPButtonPressed = true;
             blnMenuButtonPressed = true;
             blnOptionsButtonPressed = true;
-            intLevel = 5; // Set the level to start the game or show How to Play screen
+            intLevel = 4;
         }
 
         // Check if the mouse is pressed over the How to Play button
-        if (isMouseInsideHowToPlayButton() && !howToPlayButtonPressed) {
-            howToPlayButtonPressed = true; // Mark the How to Play button as pressed
+        if (isMouseInsideHowToPlayButton() && !blnHTPButtonPressed) {
+            blnHTPButtonPressed = true; // Mark the How to Play button as pressed
             blnMenuButtonPressed = false; // Reset the Back to Menu button state
             intLevel = 3; // Set the level to show How to Play screen
         }
@@ -462,17 +484,27 @@ public class Sketch1 extends PApplet {
         // Check if the mouse is pressed over the back to menu button
         if (isMouseInsideMenuButton() && !blnMenuButtonPressed) {
             blnMenuButtonPressed = true; // Mark the Menu button as pressed
-            howToPlayButtonPressed = false;
-            blnOptionsButtonPressed = false; 
+            blnHTPButtonPressed = false;
+            blnOptionsButtonPressed = false;
             intLevel = 1; // Set the level to show Menu screen
         }
 
         // Check if the mouse is pressed over the options button
         if (isMouseInsideOptionsButton() && !blnOptionsButtonPressed) {
             blnOptionsButtonPressed = true; // Mark the options button as pressed
-            howToPlayButtonPressed = true; 
-            blnMenuButtonPressed = false; 
+            blnHTPButtonPressed = true;
+            blnMenuButtonPressed = false;
             intLevel = 2;
+        }
+
+        // Check if the mouse is pressed over the Game Over button
+        if (intLevel == 7 && !blnGameOverButtonPressed && isMouseInsideGameOverButton()) {
+            blnGameOverButtonPressed = true;
+            blnOptionsButtonPressed = false;
+            blnHTPButtonPressed = false;
+            blnMenuButtonPressed = false;
+            blnStartPressed = false;
+            intLevel = 1; // Set the level to return to the Menu screen
         }
     }
 
@@ -506,6 +538,39 @@ public class Sketch1 extends PApplet {
                 mouseX <= intOptionsButtonBottomRightX &&
                 mouseY >= intOptionsButtonTopLeftY &&
                 mouseY <= intOptionsButtonBottomRightY;
+    }
+
+    boolean isMouseInsideGameOverButton() {
+        return mouseX >= intGameOverButtonTopLeftX &&
+                mouseX <= intGameOverButtonBottomRightX &&
+                mouseY >= intGameOverButtonTopLeftY &&
+                mouseY <= intGameOverButtonBottomRightY;
+    }
+
+    public void resetGame() {
+        // Reset player variables
+        intPlayerX = width / 2;
+        intPlayerY = height - 80;
+        intPlayerHealth = 3;
+
+        // Reset circle variables
+        for (int i = 0; i < intNumCircles; i++) {
+            fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
+            fltCircleSpeeds[i] = random(1.0f, 3.0f);
+            blnIsCircleHit[i] = false;
+        }
+
+        // Reset laser variables
+        for (int i = 0; i < intNumLasers; i++) {
+            blnIsLaserActive[i] = false;
+        }
+
+        // Reset player laser variables
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            blnIsPlayerLaserActive[i] = false;
+        }
+
+        
     }
 
 }
