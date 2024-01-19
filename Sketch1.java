@@ -15,6 +15,7 @@ public class Sketch1 extends PApplet {
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
     int intPlayerHealth = 3;
+    
 
     // Declare player image variable
     PImage playerImage;
@@ -114,6 +115,7 @@ public class Sketch1 extends PApplet {
         playerImage = loadImage("nerd.png");
 
         // Load the enemy image
+
         enemyImage = loadImage("enemy.png");
 
         // Load backgroundsa
@@ -204,7 +206,7 @@ public class Sketch1 extends PApplet {
         } else if (intLevel == 3) {
             // Level 3: How to Play
             image(howToMenu, 0, 0, width, height);
-        } else if (intLevel >= 4 && intLevel <= 6) {
+        } else if (intLevel == 4) {
             // Draw health.png at the top right of the screen
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
@@ -239,8 +241,96 @@ public class Sketch1 extends PApplet {
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
             }
-        } else if (intLevel == 7) {
+
+        } else if (intLevel == 5){
+
+            for (int i = 0; i < intPlayerHealth; i++) {
+                image(health, width - health.width * (i + 1), 10);
+
+            }
+
+            handleInput();
+            movePlayer();
+
+            // Display the player using the image
+            image(playerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+
+            // Move and display player lasers
+            movePlayerLasers();
+            displayPlayerLasers();
+
+            // Check for collisions with the player laser
+            checkCollisions();
+
+            // Check for collisions with purple lasers
+            checkPlayerCollisions();
+
+            // Move and display circles
+            moveCircles();
+            displayCircles();
+
+            // Move and display lasers
+            moveLasers();
+            displayLasers();
+
+            // Enemy shooting logic
+            for (int i = 0; i < intNumCircles; i++) {
+                enemyShoot(i);
+            }
+
+        } else if (intLevel == 6){
+
+            for (int i = 0; i < intPlayerHealth; i++) {
+                image(health, width - health.width * (i + 1), 10);
+
+            }
+
+            handleInput();
+            movePlayer();
+
+            // Display the player using the image
+            image(playerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+
+            // Move and display player lasers
+            movePlayerLasers();
+            displayPlayerLasers();
+
+            // Check for collisions with the player laser
+            checkCollisions();
+
+            // Check for collisions with purple lasers
+            checkPlayerCollisions();
+
+            // Move and display circles
+            moveCircles();
+            displayCircles();
+
+            // Move and display lasers
+            moveLasers();
+            displayLasers();
+
+            // Enemy shooting logic
+            for (int i = 0; i < intNumCircles; i++) {
+                enemyShoot(i);
+            }
+
+        }
+        
+        else if (intLevel == 7) {
             image(gameOverScreen, 0, 0, width, height);
+        }
+
+        // Check if all circles are hit to advance to the next level
+        if (areAllCirclesHit()) {
+            if (intLevel < 7) { // Max level is 7 in your code
+                intLevel++;
+                resetGame(); // Reset the game for the next level
+            } else {
+                // Game is completed, you can handle this accordingly
+                // For now, let's reset to level 1
+                intLevel = 1;
+                resetGame();
+            }
         }
     }
 
@@ -438,8 +528,8 @@ public class Sketch1 extends PApplet {
                 // Check if player health is zero, and handle game over logic if needed
                 if (intPlayerHealth <= 0) {
 
-                   intLevel = 7;
-                   blnGameOverButtonPressed = false;
+                    intLevel = 7;
+                    blnGameOverButtonPressed = false;
 
                 }
             }
@@ -466,7 +556,7 @@ public class Sketch1 extends PApplet {
     public void mousePressed() {
         // Check if the mouse is pressed over the start button
         if (isMouseInsideStartButton() && !blnStartPressed) {
-            resetGame();  // Reset the game when the Start Game button is pressed
+            resetGame(); // Reset the game when the Start Game button is pressed
             blnStartPressed = true;
             blnHTPButtonPressed = true;
             blnMenuButtonPressed = true;
@@ -488,6 +578,7 @@ public class Sketch1 extends PApplet {
             blnMenuButtonPressed = true; // Mark the Menu button as pressed
             blnHTPButtonPressed = false;
             blnOptionsButtonPressed = false;
+            blnStartPressed = false;
             intLevel = 1; // Set the level to show Menu screen
         }
 
@@ -573,7 +664,15 @@ public class Sketch1 extends PApplet {
             blnIsPlayerLaserActive[i] = false;
         }
 
-        
+    }
+
+    boolean areAllCirclesHit() {    
+        for (int i = 0; i < intNumCircles; i++) {
+            if (!blnIsCircleHit[i]) {
+                return false; // If any circle is not hit, return false
+            }
+        }
+        return true; // All circles are hit
     }
 
 }
