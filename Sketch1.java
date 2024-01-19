@@ -478,6 +478,8 @@ public class Sketch1 extends PApplet {
         if (isMouseInsideHowToPlayButton() && !blnHTPButtonPressed) {
             blnHTPButtonPressed = true; // Mark the How to Play button as pressed
             blnMenuButtonPressed = false; // Reset the Back to Menu button state
+            blnOptionsButtonPressed = true;
+            blnStartPressed = true;
             intLevel = 3; // Set the level to show How to Play screen
         }
 
@@ -494,6 +496,7 @@ public class Sketch1 extends PApplet {
             blnOptionsButtonPressed = true; // Mark the options button as pressed
             blnHTPButtonPressed = true;
             blnMenuButtonPressed = false;
+            blnStartPressed = true;
             intLevel = 2;
         }
 
