@@ -102,9 +102,9 @@ public class Sketch1 extends PApplet {
 
     long lastSpacebarTime = 0;
 
-    public void settings() {
-        size(600, 750);
-    }
+        public void settings() {
+            size(600, 750);
+        }
 
     public void setup() {
         background(255);
@@ -133,7 +133,7 @@ public class Sketch1 extends PApplet {
             fltCircleSpeeds[i] = random(1.0f, 3.0f); // Set random speeds for each circle
         }
 
-        fltCircleY = (float) (height / 4.2);
+        fltCircleY = (float) (height / 4.5);
 
         // Initialize laser positions and status
         for (int i = 0; i < intNumLasers; i++) {
@@ -338,15 +338,19 @@ public class Sketch1 extends PApplet {
         // Move circles side to side with consistent speed
         for (int i = 0; i < intNumCircles; i++) {
             fltCircleX[i] += fltCircleSpeeds[i];
-
+    
             // Reverse direction if the circle reaches the screen edges
             if (fltCircleX[i] > width - fltCircleDiameter || fltCircleX[i] < 0) {
                 fltCircleSpeeds[i] *= -1;
                 // Ensure the circle stays within the screen bounds
                 fltCircleX[i] = constrain(fltCircleX[i], 0, width - fltCircleDiameter);
+                
+                // Move the circles down after reaching the screen edges
+                fltCircleY += 10; // Adjust the value as needed
             }
         }
     }
+    
 
     void displayCircles() {
         // Display circles for the first row
@@ -452,7 +456,8 @@ public class Sketch1 extends PApplet {
     }
 
     void displayLasers() {
-        fill(255, 255, 255);
+        fill(255, 0, 0);
+        noStroke(); // Remove the outline of the ellipse
         for (int i = 0; i < intNumLasers; i++) {
             if (blnIsLaserActive[i]) {
                 // Check if the corresponding circle is not hit before displaying the laser
@@ -465,15 +470,14 @@ public class Sketch1 extends PApplet {
                     }
                 }
                 if (isActive) {
-                    rect(fltLaserX[i], fltLaserY[i], 6, 35);
-                    stroke(255, 255, 255);
-                    strokeWeight(2);
+                    rect(fltLaserX[i], fltLaserY[i], 7, 35);
                 } else {
                     blnIsLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
                 }
             }
         }
     }
+    
 
     void movePlayerLasers() {
         for (int i = 0; i < intNumPlayerLasers; i++) {
@@ -646,25 +650,28 @@ public class Sketch1 extends PApplet {
         intPlayerX = width / 2;
         intPlayerY = height - 80;
         intPlayerHealth = 3;
-
+    
         // Reset circle variables
+        fltCircleY = (float) (height / 10); // Adjust the Y position of circles
+        
         for (int i = 0; i < intNumCircles; i++) {
             fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
             fltCircleSpeeds[i] = random(1.0f, 3.0f);
             blnIsCircleHit[i] = false;
         }
-
+    
         // Reset laser variables
         for (int i = 0; i < intNumLasers; i++) {
             blnIsLaserActive[i] = false;
         }
-
+    
         // Reset player laser variables
         for (int i = 0; i < intNumPlayerLasers; i++) {
             blnIsPlayerLaserActive[i] = false;
         }
-
     }
+    
+    
 
     boolean areAllCirclesHit() {    
         for (int i = 0; i < intNumCircles; i++) {
