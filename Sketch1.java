@@ -15,7 +15,6 @@ public class Sketch1 extends PApplet {
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
     int intPlayerHealth = 3;
-    
 
     // Declare player image variable
     PImage playerImage;
@@ -102,9 +101,11 @@ public class Sketch1 extends PApplet {
 
     long lastSpacebarTime = 0;
 
-        public void settings() {
-            size(600, 750);
-        }
+    boolean blnGameOver = false;
+
+    public void settings() {
+        size(600, 750);
+    }
 
     public void setup() {
         background(255);
@@ -242,7 +243,7 @@ public class Sketch1 extends PApplet {
                 enemyShoot(i);
             }
 
-        } else if (intLevel == 5){
+        } else if (intLevel == 5) {
 
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
@@ -278,7 +279,7 @@ public class Sketch1 extends PApplet {
                 enemyShoot(i);
             }
 
-        } else if (intLevel == 6){
+        } else if (intLevel == 6) {
 
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
@@ -315,10 +316,23 @@ public class Sketch1 extends PApplet {
             }
 
         }
-        
+
         else if (intLevel == 7) {
             image(gameOverScreen, 0, 0, width, height);
         }
+
+        // Check if any circle has reached the bottom of the screen
+        for (int i = 0; i < intNumCircles; i++) {
+            if (fltCircleY + fltCircleDiameter / 2 > height) {
+                blnGameOver = true;
+
+                blnGameOverButtonPressed = false; // Reset game over button state
+            }
+        }
+
+        if (blnGameOver) {
+    intLevel = 7;
+}
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
@@ -333,23 +347,31 @@ public class Sketch1 extends PApplet {
             }
         }
     }
-
     void moveCircles() {
         // Move circles side to side with consistent speed
+        boolean edgeReached = false; // Variable to track if any circle has reached the edge
+    
         for (int i = 0; i < intNumCircles; i++) {
             fltCircleX[i] += fltCircleSpeeds[i];
     
             // Reverse direction if the circle reaches the screen edges
-            if (fltCircleX[i] > width - fltCircleDiameter || fltCircleX[i] < 0) {
+            if (fltCircleX[i] > width -5 || fltCircleX[i] < -5) {
                 fltCircleSpeeds[i] *= -1;
                 // Ensure the circle stays within the screen bounds
                 fltCircleX[i] = constrain(fltCircleX[i], 0, width - fltCircleDiameter);
-                
-                // Move the circles down after reaching the screen edges
-                fltCircleY += 10; // Adjust the value as needed
+    
+                // Mark that a circle has reached the edge
+                edgeReached = true;
             }
         }
+    
+        // Move the circles down after reaching the screen edges (outside the loop)
+        if (edgeReached) {
+            fltCircleY += 10;
+            edgeReached = false; // Reset the edgeReached variable
+        }
     }
+    
     
 
     void displayCircles() {
@@ -477,7 +499,6 @@ public class Sketch1 extends PApplet {
             }
         }
     }
-    
 
     void movePlayerLasers() {
         for (int i = 0; i < intNumPlayerLasers; i++) {
@@ -532,7 +553,7 @@ public class Sketch1 extends PApplet {
                 // Check if player health is zero, and handle game over logic if needed
                 if (intPlayerHealth <= 0) {
 
-                    intLevel = 7;
+                    blnGameOver = true;
                     blnGameOverButtonPressed = false;
 
                 }
@@ -567,7 +588,7 @@ public class Sketch1 extends PApplet {
             blnOptionsButtonPressed = true;
             intLevel = 4;
         }
-
+    
         // Check if the mouse is pressed over the How to Play button
         if (isMouseInsideHowToPlayButton() && !blnHTPButtonPressed) {
             blnHTPButtonPressed = true; // Mark the How to Play button as pressed
@@ -576,7 +597,7 @@ public class Sketch1 extends PApplet {
             blnStartPressed = true;
             intLevel = 3; // Set the level to show How to Play screen
         }
-
+    
         // Check if the mouse is pressed over the back to menu button
         if (isMouseInsideMenuButton() && !blnMenuButtonPressed) {
             blnMenuButtonPressed = true; // Mark the Menu button as pressed
@@ -585,7 +606,7 @@ public class Sketch1 extends PApplet {
             blnStartPressed = false;
             intLevel = 1; // Set the level to show Menu screen
         }
-
+    
         // Check if the mouse is pressed over the options button
         if (isMouseInsideOptionsButton() && !blnOptionsButtonPressed) {
             blnOptionsButtonPressed = true; // Mark the options button as pressed
@@ -594,17 +615,19 @@ public class Sketch1 extends PApplet {
             blnStartPressed = true;
             intLevel = 2;
         }
-
+    
         // Check if the mouse is pressed over the Game Over button
-        if (intLevel == 7 && !blnGameOverButtonPressed && isMouseInsideGameOverButton()) {
-            blnGameOverButtonPressed = true;
-            blnOptionsButtonPressed = false;
-            blnHTPButtonPressed = false;
-            blnMenuButtonPressed = false;
-            blnStartPressed = false;
+        if (intLevel == 7 && isMouseInsideGameOverButton()) {
+            resetGame(); // Reset the game when the Game Over button is pressed
+            blnGameOverButtonPressed = false; // Reset game over button state
             intLevel = 1; // Set the level to return to the Menu screen
+            blnStartPressed = false;
+            blnOptionsButtonPressed = false; 
+            blnHTPButtonPressed = false; 
+            
         }
     }
+    
 
     boolean isMouseInsideMenuButton() {
         return mouseX >= intMenuButtonTopLeftX &&
@@ -650,30 +673,31 @@ public class Sketch1 extends PApplet {
         intPlayerX = width / 2;
         intPlayerY = height - 80;
         intPlayerHealth = 3;
-    
+
         // Reset circle variables
         fltCircleY = (float) (height / 10); // Adjust the Y position of circles
-        
+
         for (int i = 0; i < intNumCircles; i++) {
             fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
             fltCircleSpeeds[i] = random(1.0f, 3.0f);
             blnIsCircleHit[i] = false;
         }
-    
+
         // Reset laser variables
         for (int i = 0; i < intNumLasers; i++) {
             blnIsLaserActive[i] = false;
         }
-    
+
         // Reset player laser variables
         for (int i = 0; i < intNumPlayerLasers; i++) {
             blnIsPlayerLaserActive[i] = false;
         }
-    }
-    
-    
 
-    boolean areAllCirclesHit() {    
+        // Set game over state to false
+        blnGameOver = false;
+    }
+
+    boolean areAllCirclesHit() {
         for (int i = 0; i < intNumCircles; i++) {
             if (!blnIsCircleHit[i]) {
                 return false; // If any circle is not hit, return false
