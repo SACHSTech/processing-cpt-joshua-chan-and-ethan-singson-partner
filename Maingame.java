@@ -32,8 +32,11 @@ public class Maingame extends PApplet {
     PImage howToMenu;
     PImage optionsMenu;
     PImage level1;
+    PImage level2;
+    PImage level3;
     PImage health;
     PImage gameOverScreen;
+
 
     // Enemy Variables
     int intNumCircles = 7; // Set the number of circles to 4
@@ -145,6 +148,8 @@ public class Maingame extends PApplet {
         optionsMenu = loadImage("options.png");
         gameOverScreen = loadImage("gameover.png");
         level1 = loadImage("level1.png");
+        level2 = loadImage("level2.png");
+        level3 = loadImage("level3.png");
         health = loadImage("health.png");
         health.resize(60, 60);
 
@@ -270,6 +275,8 @@ public class Maingame extends PApplet {
 
         } else if (intLevel == 5) {
 
+            background(level2);
+
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
 
@@ -310,6 +317,8 @@ public class Maingame extends PApplet {
             }
 
         } else if (intLevel == 6) {
+            
+              background(level3);
 
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
