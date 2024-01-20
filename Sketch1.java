@@ -56,6 +56,14 @@ public class Sketch1 extends PApplet {
     // Define a cooldown duration in milliseconds
     int intLaserCooldown = 450;
 
+    // Special Laser variables
+    int intNumSpecialLasers = 1500;
+    float[] fltSpecialLaserX = new float[intNumSpecialLasers];
+    float[] fltSpecialLaserY = new float[intNumSpecialLasers];
+    float fltSpecialLaserSpeed = 2; 
+    float fltSpecialLaserSpeedY = 3;
+    boolean[] blnIsSpecialLaserActive = new boolean[intNumSpecialLasers];
+    float fltWaveFrequencyX = 0.05f;
     // Start Button
     int intStartTopLeftX = 185;
     int intStartTopLeftY = 460;
@@ -238,9 +246,14 @@ public class Sketch1 extends PApplet {
             moveLasers();
             displayLasers();
 
+            //Test Delete later
+            moveSpecialLasers();
+            displaySpecialLasers();
+
             // Enemy shooting logic
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
+                specialEnemyShoot(i);
             }
 
         } else if (intLevel == 5) {
@@ -274,9 +287,14 @@ public class Sketch1 extends PApplet {
             moveLasers();
             displayLasers();
 
+            // Move and display special lasers
+            moveSpecialLasers();
+            displaySpecialLasers();
+
             // Enemy shooting logic
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
+                specialEnemyShoot(i);
             }
 
         } else if (intLevel == 6) {
@@ -331,8 +349,8 @@ public class Sketch1 extends PApplet {
         }
 
         if (blnGameOver) {
-    intLevel = 7;
-}
+            intLevel = 7;
+        }
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
@@ -347,32 +365,31 @@ public class Sketch1 extends PApplet {
             }
         }
     }
+
     void moveCircles() {
         // Move circles side to side with consistent speed
         boolean edgeReached = false; // Variable to track if any circle has reached the edge
-    
+
         for (int i = 0; i < intNumCircles; i++) {
             fltCircleX[i] += fltCircleSpeeds[i];
-    
+
             // Reverse direction if the circle reaches the screen edges
-            if (fltCircleX[i] > width -5 || fltCircleX[i] < -5) {
+            if (fltCircleX[i] > width - 5 || fltCircleX[i] < -5) {
                 fltCircleSpeeds[i] *= -1;
                 // Ensure the circle stays within the screen bounds
                 fltCircleX[i] = constrain(fltCircleX[i], 0, width - fltCircleDiameter);
-    
+
                 // Mark that a circle has reached the edge
                 edgeReached = true;
             }
         }
-    
+
         // Move the circles down after reaching the screen edges (outside the loop)
         if (edgeReached) {
             fltCircleY += 10;
             edgeReached = false; // Reset the edgeReached variable
         }
     }
-    
-    
 
     void displayCircles() {
         // Display circles for the first row
@@ -478,7 +495,7 @@ public class Sketch1 extends PApplet {
     }
 
     void displayLasers() {
-        fill(255, 0, 0);
+        fill(0, 250, 0); // Dark Green color
         noStroke(); // Remove the outline of the ellipse
         for (int i = 0; i < intNumLasers; i++) {
             if (blnIsLaserActive[i]) {
@@ -495,6 +512,67 @@ public class Sketch1 extends PApplet {
                     rect(fltLaserX[i], fltLaserY[i], 7, 35);
                 } else {
                     blnIsLaserActive[i] = false; // Deactivate the laser if the corresponding circle is hit
+                }
+            }
+        }
+    }
+
+    void moveSpecialLasers() {
+    for (int i = 0; i < intNumSpecialLasers; i++) {
+        if (blnIsSpecialLaserActive[i]) {
+            // Update X-coordinate with a since wave trajectory
+            
+            fltSpecialLaserX[i] += fltSpecialLaserSpeed * sin(fltWaveFrequencyX * frameCount);
+
+            // Update Y-coordinate directly 
+            fltSpecialLaserY[i] += fltSpecialLaserSpeedY;
+
+            // Deactivate special laser when it goes off-screen
+            if (fltSpecialLaserY[i] < 0) {
+                blnIsSpecialLaserActive[i] = false;
+            }
+        }
+    }
+}
+
+
+
+
+
+    void displaySpecialLasers() {
+    fill(255, 255, 0);
+    noStroke(); // Remove the outline of the ellipse
+    for (int i = 0; i < intNumSpecialLasers; i++) {
+        if (blnIsSpecialLaserActive[i]) {
+            // Check if the corresponding circle is not hit before displaying the special laser
+            boolean isActive = true;
+            for (int j = 0; j < intNumCircles; j++) {
+                if (circleHit(fltSpecialLaserX[i], fltSpecialLaserY[i], fltCircleX[j], fltCircleY,
+                        fltCircleDiameter / 2) && blnIsCircleHit[j]) {
+                    isActive = false;
+                    break;
+                }
+            }
+            if (isActive) {
+                 ellipse(fltSpecialLaserX[i], fltSpecialLaserY[i], 15, 15); 
+            } else {
+                blnIsSpecialLaserActive[i] = false; // Deactivate the special laser if the corresponding circle is hit
+            }
+        }
+    }
+}
+
+
+    void specialEnemyShoot(int circleIndex) {
+        // Randomly decide when to shoot a special laser
+        if (random(1) < 0.005) {
+            // Activate a special laser at the current circle position
+            for (int j = 0; j < intNumSpecialLasers; j++) {
+                if (!blnIsSpecialLaserActive[j]) {
+                    fltSpecialLaserX[j] = fltCircleX[circleIndex];
+                    fltSpecialLaserY[j] = fltCircleY;
+                    blnIsSpecialLaserActive[j] = true;
+                    break; // Exit the loop after activating one special laser
                 }
             }
         }
@@ -541,10 +619,11 @@ public class Sketch1 extends PApplet {
     }
 
     void checkPlayerCollisions() {
+        // Check regular laser collisions
         for (int i = 0; i < intNumLasers; i++) {
             if (blnIsLaserActive[i] && circleHit(fltLaserX[i], fltLaserY[i], intPlayerX + intPlayerSize / 2,
                     intPlayerY + intPlayerSize / 2, intPlayerSize / 2)) {
-                // Deactivate the purple laser
+                // Deactivate the regular laser
                 blnIsLaserActive[i] = false;
 
                 // Decrement player health
@@ -552,10 +631,26 @@ public class Sketch1 extends PApplet {
 
                 // Check if player health is zero, and handle game over logic if needed
                 if (intPlayerHealth <= 0) {
-
                     blnGameOver = true;
                     blnGameOverButtonPressed = false;
+                }
+            }
+        }
 
+        // Check special laser collisions
+        for (int i = 0; i < intNumSpecialLasers; i++) {
+            if (blnIsSpecialLaserActive[i] && circleHit(fltSpecialLaserX[i], fltSpecialLaserY[i],
+                    intPlayerX + intPlayerSize / 2, intPlayerY + intPlayerSize / 2, intPlayerSize / 2)) {
+                // Deactivate the special laser
+                blnIsSpecialLaserActive[i] = false;
+
+                // Decrement player health
+                intPlayerHealth--;
+
+                // Check if player health is zero, and handle game over logic if needed
+                if (intPlayerHealth <= 0) {
+                    blnGameOver = true;
+                    blnGameOverButtonPressed = false;
                 }
             }
         }
@@ -588,7 +683,7 @@ public class Sketch1 extends PApplet {
             blnOptionsButtonPressed = true;
             intLevel = 4;
         }
-    
+
         // Check if the mouse is pressed over the How to Play button
         if (isMouseInsideHowToPlayButton() && !blnHTPButtonPressed) {
             blnHTPButtonPressed = true; // Mark the How to Play button as pressed
@@ -597,7 +692,7 @@ public class Sketch1 extends PApplet {
             blnStartPressed = true;
             intLevel = 3; // Set the level to show How to Play screen
         }
-    
+
         // Check if the mouse is pressed over the back to menu button
         if (isMouseInsideMenuButton() && !blnMenuButtonPressed) {
             blnMenuButtonPressed = true; // Mark the Menu button as pressed
@@ -606,7 +701,7 @@ public class Sketch1 extends PApplet {
             blnStartPressed = false;
             intLevel = 1; // Set the level to show Menu screen
         }
-    
+
         // Check if the mouse is pressed over the options button
         if (isMouseInsideOptionsButton() && !blnOptionsButtonPressed) {
             blnOptionsButtonPressed = true; // Mark the options button as pressed
@@ -615,19 +710,18 @@ public class Sketch1 extends PApplet {
             blnStartPressed = true;
             intLevel = 2;
         }
-    
+
         // Check if the mouse is pressed over the Game Over button
         if (intLevel == 7 && isMouseInsideGameOverButton()) {
             resetGame(); // Reset the game when the Game Over button is pressed
             blnGameOverButtonPressed = false; // Reset game over button state
             intLevel = 1; // Set the level to return to the Menu screen
             blnStartPressed = false;
-            blnOptionsButtonPressed = false; 
-            blnHTPButtonPressed = false; 
-            
+            blnOptionsButtonPressed = false;
+            blnHTPButtonPressed = false;
+
         }
     }
-    
 
     boolean isMouseInsideMenuButton() {
         return mouseX >= intMenuButtonTopLeftX &&
