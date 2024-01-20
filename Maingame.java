@@ -15,10 +15,17 @@ public class Maingame extends PApplet {
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
     int intPlayerHealth = 3;
+    boolean blnIsPlayerHit = false;
+    long playerHitStartTime = 0;
+    int playerHitDuration = 500; // milliseconds
 
     // Declare player image variable
-    PImage playerImage;
+    PImage stageOnePlayerImage;
+    PImage stageTwoPlayerImage;
+    PImage stageThreePlayerImage;
     PImage enemyImage;
+    PImage enemyHitImage;
+    PImage playerStage1HitImage;
 
     // Declare background image variables
     PImage startMenu;
@@ -32,6 +39,7 @@ public class Maingame extends PApplet {
     int intNumCircles = 7; // Set the number of circles to 4
     float[] fltCircleX = new float[intNumCircles];
     float[] fltCircleSpeeds = new float[intNumCircles];
+    int[] intCircleHitCount = new int[intNumCircles];
     float fltCircleSpacing = 120;
     float fltCircleY;
     float fltCircleDiameter = 50;
@@ -60,7 +68,7 @@ public class Maingame extends PApplet {
     int intNumSpecialLasers = 1500;
     float[] fltSpecialLaserX = new float[intNumSpecialLasers];
     float[] fltSpecialLaserY = new float[intNumSpecialLasers];
-    float fltSpecialLaserSpeed = 2; 
+    float fltSpecialLaserSpeed = 2;
     float fltSpecialLaserSpeedY = 3;
     boolean[] blnIsSpecialLaserActive = new boolean[intNumSpecialLasers];
     float fltWaveFrequencyX = 0.05f;
@@ -121,7 +129,11 @@ public class Maingame extends PApplet {
         intPlayerY = height - 80; // Start at the bottom center slightly spaced up
 
         // Load the player image
-        playerImage = loadImage("nerd.png");
+        stageOnePlayerImage = loadImage("nerd.png");
+        stageTwoPlayerImage = loadImage("secondstagesprite.png");
+        stageThreePlayerImage = loadImage("FINAL_SPRITE.png");
+        enemyHitImage = loadImage("enemyhit.png");
+        playerStage1HitImage = loadImage("nerdhit.png");
 
         // Load the enemy image
 
@@ -226,7 +238,7 @@ public class Maingame extends PApplet {
             movePlayer();
 
             // Display the player using the image
-            image(playerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            image(stageOnePlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -246,7 +258,7 @@ public class Maingame extends PApplet {
             moveLasers();
             displayLasers();
 
-            //Test Delete later
+            // Test Delete later
             moveSpecialLasers();
             displaySpecialLasers();
 
@@ -267,7 +279,7 @@ public class Maingame extends PApplet {
             movePlayer();
 
             // Display the player using the image
-            image(playerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            image(stageTwoPlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -308,7 +320,7 @@ public class Maingame extends PApplet {
             movePlayer();
 
             // Display the player using the image
-            image(playerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            image(stageThreePlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -364,6 +376,19 @@ public class Maingame extends PApplet {
                 resetGame();
             }
         }
+
+        if (intPlayerHealth > 0 || intLevel == 4) {
+            if (blnIsPlayerHit) {
+                // Check if enough time has passed since the player was hit
+                if (millis() - playerHitStartTime >= playerHitDuration) {
+                    blnIsPlayerHit = false;
+                } else {
+                    image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+                }
+            } else {
+                image(stageOnePlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            }
+        }
     }
 
     void moveCircles() {
@@ -387,17 +412,33 @@ public class Maingame extends PApplet {
         // Move the circles down after reaching the screen edges (outside the loop)
         if (edgeReached) {
             fltCircleY += 10;
+
+            // Reset hit count for circles that reach the bottom
+            for (int i = 0; i < intNumCircles; i++) {
+                if (fltCircleY + fltCircleDiameter / 2 > height && !blnIsCircleHit[i]) {
+                    intCircleHitCount[i] = 0;
+                }
+            }
+
             edgeReached = false; // Reset the edgeReached variable
         }
+
     }
 
     void displayCircles() {
         // Display circles for the first row
         for (int i = 0; i < intNumCircles; i++) {
             if (!blnIsCircleHit[i]) {
-                image(enemyImage, fltCircleX[i] - fltCircleDiameter / 2, fltCircleY - fltCircleDiameter / 2,
-                        fltCircleDiameter,
-                        fltCircleDiameter);
+                if (intCircleHitCount[i] > 0 && millis() % 500 > 250) {
+                    // Flash the enemy when hit
+                    image(enemyHitImage, fltCircleX[i] - fltCircleDiameter / 2, fltCircleY - fltCircleDiameter / 2,
+                            fltCircleDiameter,
+                            fltCircleDiameter);
+                } else {
+                    image(enemyImage, fltCircleX[i] - fltCircleDiameter / 2, fltCircleY - fltCircleDiameter / 2,
+                            fltCircleDiameter,
+                            fltCircleDiameter);
+                }
             }
         }
     }
@@ -518,50 +559,47 @@ public class Maingame extends PApplet {
     }
 
     void moveSpecialLasers() {
-    for (int i = 0; i < intNumSpecialLasers; i++) {
-        if (blnIsSpecialLaserActive[i]) {
-            // Update X-coordinate with a since wave trajectory
-            
-            fltSpecialLaserX[i] += fltSpecialLaserSpeed * sin(fltWaveFrequencyX * frameCount);
+        for (int i = 0; i < intNumSpecialLasers; i++) {
+            if (blnIsSpecialLaserActive[i]) {
+                // Update X-coordinate with a since wave trajectory
 
-            // Update Y-coordinate directly 
-            fltSpecialLaserY[i] += fltSpecialLaserSpeedY;
+                fltSpecialLaserX[i] += fltSpecialLaserSpeed * sin(fltWaveFrequencyX * frameCount);
 
-            // Deactivate special laser when it goes off-screen
-            if (fltSpecialLaserY[i] < 0) {
-                blnIsSpecialLaserActive[i] = false;
-            }
-        }
-    }
-}
+                // Update Y-coordinate directly
+                fltSpecialLaserY[i] += fltSpecialLaserSpeedY;
 
-
-
-
-
-    void displaySpecialLasers() {
-    fill(255, 255, 0);
-    noStroke(); // Remove the outline of the ellipse
-    for (int i = 0; i < intNumSpecialLasers; i++) {
-        if (blnIsSpecialLaserActive[i]) {
-            // Check if the corresponding circle is not hit before displaying the special laser
-            boolean isActive = true;
-            for (int j = 0; j < intNumCircles; j++) {
-                if (circleHit(fltSpecialLaserX[i], fltSpecialLaserY[i], fltCircleX[j], fltCircleY,
-                        fltCircleDiameter / 2) && blnIsCircleHit[j]) {
-                    isActive = false;
-                    break;
+                // Deactivate special laser when it goes off-screen
+                if (fltSpecialLaserY[i] < 0) {
+                    blnIsSpecialLaserActive[i] = false;
                 }
             }
-            if (isActive) {
-                 ellipse(fltSpecialLaserX[i], fltSpecialLaserY[i], 15, 15); 
-            } else {
-                blnIsSpecialLaserActive[i] = false; // Deactivate the special laser if the corresponding circle is hit
+        }
+    }
+
+    void displaySpecialLasers() {
+        fill(255, 255, 0);
+        noStroke(); // Remove the outline of the ellipse
+        for (int i = 0; i < intNumSpecialLasers; i++) {
+            if (blnIsSpecialLaserActive[i]) {
+                // Check if the corresponding circle is not hit before displaying the special
+                // laser
+                boolean isActive = true;
+                for (int j = 0; j < intNumCircles; j++) {
+                    if (circleHit(fltSpecialLaserX[i], fltSpecialLaserY[i], fltCircleX[j], fltCircleY,
+                            fltCircleDiameter / 2) && blnIsCircleHit[j]) {
+                        isActive = false;
+                        break;
+                    }
+                }
+                if (isActive) {
+                    ellipse(fltSpecialLaserX[i], fltSpecialLaserY[i], 15, 15);
+                } else {
+                    blnIsSpecialLaserActive[i] = false; // Deactivate the special laser if the corresponding circle is
+                                                        // hit
+                }
             }
         }
     }
-}
-
 
     void specialEnemyShoot(int circleIndex) {
         // Randomly decide when to shoot a special laser
@@ -607,12 +645,18 @@ public class Maingame extends PApplet {
                 if (blnIsPlayerLaserActive[i] && !blnIsCircleHit[j] &&
                         circleHit(fltPlayerLaserX[i], fltPlayerLaserY[i], fltCircleX[j], fltCircleY,
                                 fltCircleDiameter / 2)) {
+                    // Increment the hit count for the circle
+                    intCircleHitCount[j]++;
+
+                    // Check if the circle has been hit twice
+                    if (intCircleHitCount[j] >= 2) {
+                        // Mark the circle as hit and move it off-screen
+                        blnIsCircleHit[j] = true;
+                        fltCircleX[j] = -1000; // Move the circle off-screen
+                    }
+
                     // Deactivate player laser
                     blnIsPlayerLaserActive[i] = false;
-
-                    // Mark the circle as hit and move it off-screen
-                    blnIsCircleHit[j] = true;
-                    fltCircleX[j] = -1000; // Move the circle off-screen
                 }
             }
         }
@@ -623,17 +667,9 @@ public class Maingame extends PApplet {
         for (int i = 0; i < intNumLasers; i++) {
             if (blnIsLaserActive[i] && circleHit(fltLaserX[i], fltLaserY[i], intPlayerX + intPlayerSize / 2,
                     intPlayerY + intPlayerSize / 2, intPlayerSize / 2)) {
-                // Deactivate the regular laser
+                handlePlayerHit();
+                // Deactivate the regular laser when it hits the player
                 blnIsLaserActive[i] = false;
-
-                // Decrement player health
-                intPlayerHealth--;
-
-                // Check if player health is zero, and handle game over logic if needed
-                if (intPlayerHealth <= 0) {
-                    blnGameOver = true;
-                    blnGameOverButtonPressed = false;
-                }
             }
         }
 
@@ -641,17 +677,25 @@ public class Maingame extends PApplet {
         for (int i = 0; i < intNumSpecialLasers; i++) {
             if (blnIsSpecialLaserActive[i] && circleHit(fltSpecialLaserX[i], fltSpecialLaserY[i],
                     intPlayerX + intPlayerSize / 2, intPlayerY + intPlayerSize / 2, intPlayerSize / 2)) {
-                // Deactivate the special laser
+                handlePlayerHit();
+                // Deactivate the special laser when it hits the player
                 blnIsSpecialLaserActive[i] = false;
+            }
+        }
+    }
 
-                // Decrement player health
-                intPlayerHealth--;
+    void handlePlayerHit() {
+        if (!blnIsPlayerHit) {
+            // Set the player hit state and record the start time
+            blnIsPlayerHit = true;
+            playerHitStartTime = millis();
+            // Decrement player health
+            intPlayerHealth--;
 
-                // Check if player health is zero, and handle game over logic if needed
-                if (intPlayerHealth <= 0) {
-                    blnGameOver = true;
-                    blnGameOverButtonPressed = false;
-                }
+            // Check if player health is zero, and handle game over logic if needed
+            if (intPlayerHealth <= 0) {
+                blnGameOver = true;
+                blnGameOverButtonPressed = false;
             }
         }
     }
@@ -777,9 +821,18 @@ public class Maingame extends PApplet {
             blnIsCircleHit[i] = false;
         }
 
+        for (int i = 0; i < intNumCircles; i++) {
+            intCircleHitCount[i] = 0;
+        }
+
         // Reset laser variables
         for (int i = 0; i < intNumLasers; i++) {
             blnIsLaserActive[i] = false;
+        }
+
+        // Reset special laser variables
+        for (int i = 0; i < intNumSpecialLasers; i++) {
+            blnIsSpecialLaserActive[i] = false;
         }
 
         // Reset player laser variables
