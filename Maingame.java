@@ -1,7 +1,7 @@
 import processing.core.PApplet;
 import processing.core.PImage;
 
-public class Sketch1 extends PApplet {
+public class Maingame extends PApplet {
 
     // Movement key variables
     boolean blnUp = false;
