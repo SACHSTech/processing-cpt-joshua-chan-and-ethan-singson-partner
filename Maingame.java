@@ -36,6 +36,7 @@ public class Maingame extends PApplet {
     PImage level3;
     PImage health;
     PImage gameOverScreen;
+    PImage level6;
 
     // Enemy Variables
     int intNumCircles = 7; // Set the number of circles to 4
@@ -83,6 +84,7 @@ public class Maingame extends PApplet {
     boolean blnStartPressed = false;
 
     // How to Play Button
+
     int intHTPButtonTopLeftX = 183;
     int intHTPButtonTopLeftY = 604;
     int intHTPButtonBottomRightX = 417;
