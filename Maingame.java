@@ -875,7 +875,7 @@ public class Maingame extends PApplet {
         // Reset player variables
         intPlayerX = width / 2;
         intPlayerY = height - 80;
-        intPlayerHealth = 10;
+        intPlayerHealth = 5;
         blnIsPlayerHit = false; // Reset player hit state
 
         // Reset circle variables
