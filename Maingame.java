@@ -70,11 +70,11 @@ public class Maingame extends PApplet {
     int intNumSpecialLasers = 1500;
     float[] fltSpecialLaserX = new float[intNumSpecialLasers];
     float[] fltSpecialLaserY = new float[intNumSpecialLasers];
-    float fltSpecialLaserSpeed = 2;
-    float fltSpecialLaserSpeedY = 3;
+    float fltSpecialLaserSpeed = 3f;
+    float fltSpecialLaserSpeedY = 1.5f;
     boolean[] blnIsSpecialLaserActive = new boolean[intNumSpecialLasers];
-    float fltWaveFrequencyX = 0.01f;
-    // Start Button
+    float fltWaveFrequencyX = 0.1f;
+    // Start Buttond
     int intStartTopLeftX = 185;
     int intStartTopLeftY = 460;
     int intStartBottomRightX = 417;
@@ -460,40 +460,40 @@ public class Maingame extends PApplet {
     }
 
     public void keyPressed() {
-        if (blnChangeMovementButtonPressed) {
-            // Handle custom keybinds
-            if (keyCode == UP) {
-                blnUp = true;
-            } else if (keyCode == RIGHT) {
-                blnRight = true;
-            } else if (keyCode == DOWN) {
-                blnDown = true;
-            } else if (keyCode == LEFT) {
-                blnLeft = true;
-
-            }
-        } else {
-            // Handle default keybinds
-            if (key == 'w' || key == 'W') {
-                blnUp = true;
-            } else if (key == 'd' || key == 'D') {
-                blnRight = true;
-            } else if (key == 's' || key == 'S') {
-                blnDown = true;
-            } else if (key == 'a' || key == 'A') {
-                blnLeft = true;
-            } else if (key == ' ') {
-                // Check if enough time has passed since the last shot
-                long currentTime = millis();
-                if (currentTime - lastSpacebarTime >= intLaserCooldown) {
-                    // Shoot a player laser
-                    shootPlayerLaser();
-                    // Update the last spacebar press time
-                    lastSpacebarTime = currentTime;
-                }
+    if (blnChangeMovementButtonPressed) {
+        // Handle custom keybinds
+        if (keyCode == UP) {
+            blnUp = true;
+        } else if (keyCode == RIGHT) {
+            blnRight = true;
+        } else if (keyCode == DOWN) {
+            blnDown = true;
+        } else if (keyCode == LEFT) {
+            blnLeft = true;
+        }
+    } else {
+        // Handle default keybinds
+        if (key == 'w' || key == 'W') {
+            blnUp = true;
+        } else if (key == 'd' || key == 'D') {
+            blnRight = true;
+        } else if (key == 's' || key == 'S') {
+            blnDown = true;
+        } else if (key == 'a' || key == 'A') {
+            blnLeft = true;
+        } else if (key == ' ' && !blnChangeShootButtonPressed) {
+            // Check if enough time has passed since the last shot
+            long currentTime = millis();
+            if (currentTime - lastSpacebarTime >= intLaserCooldown) {
+                // Shoot a player laser
+                shootPlayerLaser();
+                // Update the last spacebar press time
+                lastSpacebarTime = currentTime;
             }
         }
     }
+}
+
 
     public void keyReleased() {
         if (blnChangeMovementButtonPressed) {
@@ -547,7 +547,7 @@ public class Maingame extends PApplet {
 
     void enemyShoot(int circleIndex) {
         // Randomly decide when to shoot
-        if (random(1) < 0.01) {
+        if (random(1) < 0.008) {
             // Activate a laser at the current circle position
             for (int j = 0; j < intNumLasers; j++) {
                 if (!blnIsLaserActive[j]) {
@@ -640,7 +640,7 @@ public class Maingame extends PApplet {
 
     void specialEnemyShoot(int circleIndex) {
         // Randomly decide when to shoot a special laser
-        if (random(1) < 0.005) {
+        if (random(1) < 0.003) {
             // Activate a special laser at the current circle position
             for (int j = 0; j < intNumSpecialLasers; j++) {
                 if (!blnIsSpecialLaserActive[j]) {
@@ -699,27 +699,31 @@ public class Maingame extends PApplet {
         }
     }
 
-    void checkPlayerCollisions() {
-        // Check regular laser collisions
-        for (int i = 0; i < intNumLasers; i++) {
-            if (blnIsLaserActive[i] && circleHit(fltLaserX[i], fltLaserY[i], intPlayerX + intPlayerSize / 2,
-                    intPlayerY + intPlayerSize / 2, intPlayerSize / 2)) {
+   void checkPlayerCollisions() {
+    // Check regular laser collisions
+    for (int i = 0; i < intNumLasers; i++) {
+        if (blnIsLaserActive[i]) {
+            float distance = dist(fltLaserX[i], fltLaserY[i], intPlayerX + intPlayerSize / 2, intPlayerY + intPlayerSize / 2);
+            if (distance < intPlayerSize / 2) {
                 handlePlayerHit();
                 // Deactivate the regular laser when it hits the player
                 blnIsLaserActive[i] = false;
             }
         }
+    }
 
-        // Check special laser collisions
-        for (int i = 0; i < intNumSpecialLasers; i++) {
-            if (blnIsSpecialLaserActive[i] && circleHit(fltSpecialLaserX[i], fltSpecialLaserY[i],
-                    intPlayerX + intPlayerSize / 2, intPlayerY + intPlayerSize / 2, intPlayerSize / 2)) {
+    // Check special laser collisions
+    for (int i = 0; i < intNumSpecialLasers; i++) {
+        if (blnIsSpecialLaserActive[i]) {
+            float distance = dist(fltSpecialLaserX[i], fltSpecialLaserY[i], intPlayerX + intPlayerSize / 2, intPlayerY + intPlayerSize / 2);
+            if (distance < intPlayerSize / 2) {
                 handlePlayerHit();
                 // Deactivate the special laser when it hits the player
                 blnIsSpecialLaserActive[i] = false;
             }
         }
     }
+}
 
     void handlePlayerHit() {
         if (!blnIsPlayerHit) {
