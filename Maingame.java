@@ -189,54 +189,8 @@ public class Maingame extends PApplet {
 
     public void draw() {
 
-        // Draw the start button
-        if (!blnStartPressed) {
-            fill(100, 100, 100);
-            rect(intStartTopLeftX, intStartTopLeftY, intStartBottomRightX - intStartTopLeftX,
-                    intStartBottomRightY - intStartTopLeftY);
-            if (isMouseInsideStartButton()) {
-                fill(255);
-            }
-        }
-
-        // Draw the How to Play button
-        if (!blnHTPButtonPressed) {
-            fill(100, 100, 100);
-            rect(intHTPButtonTopLeftX, intHTPButtonTopLeftY,
-                    intHTPButtonBottomRightX - intHTPButtonTopLeftX,
-                    intHTPButtonBottomRightY - intHTPButtonTopLeftY);
-            if (isMouseInsideHowToPlayButton()) {
-                fill(255);
-
-            }
-        }
-
-        // Draw the back to menu button
-
-        if (!blnMenuButtonPressed) {
-            fill(100, 100, 100);
-            rect(intMenuButtonTopLeftX, intMenuButtonTopLeftY,
-                    intMenuButtonBottomRightX - intMenuButtonTopLeftX,
-                    intMenuButtonBottomRightY - intMenuButtonTopLeftY);
-            if (isMouseInsideMenuButton()) {
-                fill(255);
-
-            }
-
-        }
-
-        // Draw the Game Over button
-        if (intLevel == 7 && !blnGameOverButtonPressed) {
-            fill(100, 100, 100);
-            rect(intGameOverButtonTopLeftX, intGameOverButtonTopLeftY,
-                    intGameOverButtonBottomRightX - intGameOverButtonTopLeftX,
-                    intGameOverButtonBottomRightY - intGameOverButtonTopLeftY);
-            if (isMouseInsideGameOverButton()) {
-                fill(255);
-            }
-        }
-
-        // Draw other elements based on the current level
+       // Draw Levels
+       
         if (intLevel == 1) {
 
             image(startMenu, 0, 0, width, height);
