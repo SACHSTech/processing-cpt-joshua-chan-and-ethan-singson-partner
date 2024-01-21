@@ -17,7 +17,7 @@ public class Maingame extends PApplet {
     int intPlayerHealth = 3;
     boolean blnIsPlayerHit = false;
     long playerHitStartTime = 0;
-    int playerHitDuration = 500; // milliseconds
+    int playerHitDuration = 40; // milliseconds
 
     // Declare player image variable
     PImage stageOnePlayerImage;
@@ -74,7 +74,7 @@ public class Maingame extends PApplet {
     float fltSpecialLaserSpeed = 2;
     float fltSpecialLaserSpeedY = 3;
     boolean[] blnIsSpecialLaserActive = new boolean[intNumSpecialLasers];
-    float fltWaveFrequencyX = 0.05f;
+    float fltWaveFrequencyX = 0.09f;
     // Start Button
     int intStartTopLeftX = 185;
     int intStartTopLeftY = 460;
@@ -270,7 +270,6 @@ public class Maingame extends PApplet {
             // Enemy shooting logic
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
-                specialEnemyShoot(i);
             }
 
         } else if (intLevel == 5) {
@@ -317,7 +316,7 @@ public class Maingame extends PApplet {
             }
 
         } else if (intLevel == 6) {
-            
+
               background(level3);
 
             for (int i = 0; i < intPlayerHealth; i++) {
@@ -543,7 +542,7 @@ public class Maingame extends PApplet {
             }
         }
     }
-
+ 
     void displayLasers() {
         fill(0, 250, 0); // Dark Green color
         noStroke(); // Remove the outline of the ellipse
