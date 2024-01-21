@@ -14,7 +14,7 @@ public class Maingame extends PApplet {
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
-    int intPlayerHealth = 3;
+    int intPlayerHealth = 5;
     boolean blnIsPlayerHit = false;
     long playerHitStartTime = 0;
     int playerHitDuration = 40; // milliseconds
@@ -36,7 +36,6 @@ public class Maingame extends PApplet {
     PImage level3;
     PImage health;
     PImage gameOverScreen;
-
 
     // Enemy Variables
     int intNumCircles = 7; // Set the number of circles to 4
@@ -74,7 +73,7 @@ public class Maingame extends PApplet {
     float fltSpecialLaserSpeed = 2;
     float fltSpecialLaserSpeedY = 3;
     boolean[] blnIsSpecialLaserActive = new boolean[intNumSpecialLasers];
-    float fltWaveFrequencyX = 0.09f;
+    float fltWaveFrequencyX = 0.01f;
     // Start Button
     int intStartTopLeftX = 185;
     int intStartTopLeftY = 460;
@@ -109,6 +108,21 @@ public class Maingame extends PApplet {
 
     boolean blnOptionsButtonPressed = false;
 
+    int intChangeMovementButtonTopLeftX = 80;
+    int intChangeMovementButtonTopLeftY = 430;
+    int intChangeMovementButtonBottomRightX = 130;
+    int intChangeMovementButtonBottomRightY = 480;
+
+    int buttonAlpha = 200;
+
+    int intChangeShootButtonTopLeftX = 80;
+    int intChangeShootButtonTopLeftY = 520;
+    int intChangeShootButtonBottomRightX = 130;
+    int intChangeShootButtonBottomRightY = 570;
+
+    boolean blnChangeMovementButtonPressed = false;
+    boolean blnChangeShootButtonPressed = false;
+
     // Game Over Button
 
     int intGameOverButtonTopLeftX = 136;
@@ -119,6 +133,7 @@ public class Maingame extends PApplet {
     boolean blnGameOverButtonPressed = false;
 
     long lastSpacebarTime = 0;
+    long lastClickTime = 0;
 
     boolean blnGameOver = false;
 
@@ -128,8 +143,7 @@ public class Maingame extends PApplet {
 
     public void setup() {
         background(255);
-        intPlayerX = width / 2;
-        intPlayerY = height - 80; // Start at the bottom center slightly spaced up
+        resetGame();
 
         // Load the player image
         stageOnePlayerImage = loadImage("nerd.png");
@@ -139,10 +153,9 @@ public class Maingame extends PApplet {
         playerStage1HitImage = loadImage("nerdhit.png");
 
         // Load the enemy image
-
         enemyImage = loadImage("enemy.png");
 
-        // Load backgroundsa
+        // Load backgrounds
         startMenu = loadImage("START_MENU.png");
         howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
         optionsMenu = loadImage("options.png");
@@ -173,7 +186,6 @@ public class Maingame extends PApplet {
     }
 
     public void draw() {
-        background(level1);
 
         // Draw the start button
         if (!blnStartPressed) {
@@ -224,26 +236,28 @@ public class Maingame extends PApplet {
 
         // Draw other elements based on the current level
         if (intLevel == 1) {
-            // Reset the How to Play button state when returning to the Menu
+
             image(startMenu, 0, 0, width, height);
         } else if (intLevel == 2) {
             // Level 2: Options
             image(optionsMenu, 0, 0, width, height);
+            // Draw checkbox background
+            drawChangeMovementButton();
+            drawChangeShootButton();
+
         } else if (intLevel == 3) {
             // Level 3: How to Play
             image(howToMenu, 0, 0, width, height);
         } else if (intLevel == 4) {
+            background(level1);
+
             // Draw health.png at the top right of the screen
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
-
             }
 
             handleInput();
             movePlayer();
-
-            // Display the player using the image
-            image(stageOnePlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -263,15 +277,10 @@ public class Maingame extends PApplet {
             moveLasers();
             displayLasers();
 
-            // Test Delete later
-            moveSpecialLasers();
-            displaySpecialLasers();
-
             // Enemy shooting logic
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
             }
-
         } else if (intLevel == 5) {
 
             background(level2);
@@ -317,7 +326,7 @@ public class Maingame extends PApplet {
 
         } else if (intLevel == 6) {
 
-              background(level3);
+            background(level3);
 
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
@@ -378,14 +387,13 @@ public class Maingame extends PApplet {
                 intLevel++;
                 resetGame(); // Reset the game for the next level
             } else {
-                // Game is completed, you can handle this accordingly
-                // For now, let's reset to level 1
-                intLevel = 1;
+
+                intLevel = 7;
                 resetGame();
             }
         }
 
-        if (intPlayerHealth > 0 || intLevel == 4) {
+        if (intPlayerHealth > 0 && intLevel >= 4 && intLevel < 7) {
             if (blnIsPlayerHit) {
                 // Check if enough time has passed since the player was hit
                 if (millis() - playerHitStartTime >= playerHitDuration) {
@@ -452,38 +460,64 @@ public class Maingame extends PApplet {
     }
 
     public void keyPressed() {
-        if (key == 'w' || key == 'W') {
-            blnUp = true;
-        } else if (key == 'd' || key == 'D') {
-            blnRight = true;
-        } else if (key == 's' || key == 'S') {
-            blnDown = true;
-        } else if (key == 'a' || key == 'A') {
-            blnLeft = true;
-        }
+        if (blnChangeMovementButtonPressed) {
+            // Handle custom keybinds
+            if (keyCode == UP) {
+                blnUp = true;
+            } else if (keyCode == RIGHT) {
+                blnRight = true;
+            } else if (keyCode == DOWN) {
+                blnDown = true;
+            } else if (keyCode == LEFT) {
+                blnLeft = true;
 
-        if (key == ' ') {
-            // Check if enough time has passed since the last shot
-            long currentTime = millis();
-            if (currentTime - lastSpacebarTime >= intLaserCooldown) {
-                // Shoot a player laser
-                shootPlayerLaser();
-                // Update the last spacebar press time
-                lastSpacebarTime = currentTime;
+            }
+        } else {
+            // Handle default keybinds
+            if (key == 'w' || key == 'W') {
+                blnUp = true;
+            } else if (key == 'd' || key == 'D') {
+                blnRight = true;
+            } else if (key == 's' || key == 'S') {
+                blnDown = true;
+            } else if (key == 'a' || key == 'A') {
+                blnLeft = true;
+            } else if (key == ' ') {
+                // Check if enough time has passed since the last shot
+                long currentTime = millis();
+                if (currentTime - lastSpacebarTime >= intLaserCooldown) {
+                    // Shoot a player laser
+                    shootPlayerLaser();
+                    // Update the last spacebar press time
+                    lastSpacebarTime = currentTime;
+                }
             }
         }
     }
 
     public void keyReleased() {
-
-        if (key == 'w' || key == 'W') {
-            blnUp = false;
-        } else if (key == 'd' || key == 'D') {
-            blnRight = false;
-        } else if (key == 's' || key == 'S') {
-            blnDown = false;
-        } else if (key == 'a' || key == 'A') {
-            blnLeft = false;
+        if (blnChangeMovementButtonPressed) {
+            // Handle custom keybinds
+            if (keyCode == UP) {
+                blnUp = false;
+            } else if (keyCode == RIGHT) {
+                blnRight = false;
+            } else if (keyCode == DOWN) {
+                blnDown = false;
+            } else if (keyCode == LEFT) {
+                blnLeft = false;
+            }
+        } else {
+            // Handle default keybinds
+            if (key == 'w' || key == 'W') {
+                blnUp = false;
+            } else if (key == 'd' || key == 'D') {
+                blnRight = false;
+            } else if (key == 's' || key == 'S') {
+                blnDown = false;
+            } else if (key == 'a' || key == 'A') {
+                blnLeft = false;
+            }
         }
     }
 
@@ -509,11 +543,6 @@ public class Maingame extends PApplet {
 
         // Restrict the player from going above the top third
         intPlayerY = constrain(intPlayerY, (int) (height / 1.5), height - intPlayerSize);
-    }
-
-    void displayPlayer() {
-        fill(0, 255, 0); // Green color for the player
-        rect(intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
     }
 
     void enemyShoot(int circleIndex) {
@@ -542,7 +571,7 @@ public class Maingame extends PApplet {
             }
         }
     }
- 
+
     void displayLasers() {
         fill(0, 250, 0); // Dark Green color
         noStroke(); // Remove the outline of the ellipse
@@ -773,6 +802,34 @@ public class Maingame extends PApplet {
             blnHTPButtonPressed = false;
 
         }
+
+        // Check if the mouse is pressed over the checkbox in the options menu
+        if (intLevel == 2 && mouseX >= intChangeMovementButtonTopLeftX
+                && mouseX <= intChangeMovementButtonBottomRightX && mouseY >= intChangeMovementButtonTopLeftY
+                && mouseY <= intChangeMovementButtonBottomRightY) {
+            blnChangeMovementButtonPressed = !blnChangeMovementButtonPressed; 
+                                                                           
+        }
+
+        // Check if the mouse is pressed over the checkbox in the options menu
+        if (intLevel == 2 && mouseX >= intChangeShootButtonTopLeftX
+                && mouseX <= intChangeShootButtonBottomRightX && mouseY >= intChangeShootButtonTopLeftY
+                && mouseY <= intChangeShootButtonBottomRightY) {
+            blnChangeShootButtonPressed = !blnChangeShootButtonPressed; 
+                                                                           
+        }
+
+        if (blnChangeShootButtonPressed) {
+            if (mouseButton == LEFT) {
+                // Check if enough time has passed since the last shot
+                long currentTime = millis();
+                if (currentTime - lastClickTime >= intLaserCooldown) {
+                    // Shoot a player laser
+                    shootPlayerLaser();
+                    lastClickTime = currentTime;
+                }
+            }
+        }
     }
 
     boolean isMouseInsideMenuButton() {
@@ -818,7 +875,8 @@ public class Maingame extends PApplet {
         // Reset player variables
         intPlayerX = width / 2;
         intPlayerY = height - 80;
-        intPlayerHealth = 3;
+        intPlayerHealth = 10;
+        blnIsPlayerHit = false; // Reset player hit state
 
         // Reset circle variables
         fltCircleY = (float) (height / 10); // Adjust the Y position of circles
@@ -827,9 +885,6 @@ public class Maingame extends PApplet {
             fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
             fltCircleSpeeds[i] = random(1.0f, 3.0f);
             blnIsCircleHit[i] = false;
-        }
-
-        for (int i = 0; i < intNumCircles; i++) {
             intCircleHitCount[i] = 0;
         }
 
@@ -848,8 +903,7 @@ public class Maingame extends PApplet {
             blnIsPlayerLaserActive[i] = false;
         }
 
-        // Set game over state to false
-        blnGameOver = false;
+        blnGameOver = false; // Reset game over state
     }
 
     boolean areAllCirclesHit() {
@@ -861,4 +915,101 @@ public class Maingame extends PApplet {
         return true; // All circles are hit
     }
 
+    // Helper function to check if the mouse is inside the Change Movement button
+    boolean isMouseInsideChangeMovementButton() {
+        return mouseX >= intChangeMovementButtonTopLeftX &&
+                mouseX <= intChangeMovementButtonBottomRightX &&
+                mouseY >= intChangeMovementButtonTopLeftY &&
+                mouseY <= intChangeMovementButtonBottomRightY;
+    }
+
+    // Helper function to check if the mouse is inside the Change Shoot button
+    boolean isMouseInsideChangeShootButton() {
+        return mouseX >= intChangeShootButtonTopLeftX &&
+                mouseX <= intChangeShootButtonBottomRightX &&
+                mouseY >= intChangeShootButtonTopLeftY &&
+                mouseY <= intChangeShootButtonBottomRightY;
+    }
+
+    public void drawChangeMovementButton() {
+     
+        stroke(255); 
+        strokeWeight(7); 
+        fill(0, buttonAlpha);
+        rect(intChangeMovementButtonTopLeftX, intChangeMovementButtonTopLeftY,
+                intChangeMovementButtonBottomRightX - intChangeMovementButtonTopLeftX,
+                intChangeMovementButtonBottomRightY - intChangeMovementButtonTopLeftY);
+
+
+        if (blnChangeMovementButtonPressed) {
+        
+            stroke(255); 
+            strokeWeight(7); 
+            noFill(); 
+
+            float checkSize = 25;
+            float checkX = intChangeMovementButtonTopLeftX + 12;
+            float checkY = intChangeMovementButtonTopLeftY - 5
+                    + (intChangeMovementButtonBottomRightY - intChangeMovementButtonTopLeftY) / 2;
+            line(checkX, checkY, checkX + checkSize / 2, checkY + checkSize);
+            line(checkX + checkSize / 2, checkY + checkSize, checkX + checkSize, checkY - checkSize / 2);
+        }
+
+        // Draw checkbox text on the right-hand side of the checkmark
+        fill(255);
+        textAlign(LEFT, CENTER); 
+        textSize(20);
+
+        float textX = intChangeMovementButtonTopLeftX + 60; 
+        float textY = intChangeMovementButtonTopLeftY
+                + (intChangeMovementButtonBottomRightY - intChangeMovementButtonTopLeftY) / 2;
+
+        int boldness = 3; 
+
+        for (int i = 0; i < boldness; i++) {
+            text("CHANGE MOVEMENT TO ARROW KEYS.", textX + i, textY);
+        }
+
+    }
+
+    public void drawChangeShootButton() {
+        
+        stroke(255); 
+        strokeWeight(7); 
+        fill(0, buttonAlpha);
+        rect(intChangeShootButtonTopLeftX, intChangeShootButtonTopLeftY,
+                intChangeShootButtonBottomRightX - intChangeShootButtonTopLeftX,
+                intChangeShootButtonBottomRightY - intChangeShootButtonTopLeftY);
+
+  
+        if (blnChangeShootButtonPressed) {
+           
+            stroke(255); 
+            strokeWeight(7); 
+            noFill(); 
+
+            float checkSize = 25;
+            float checkX = intChangeShootButtonTopLeftX + 12;
+            float checkY = intChangeShootButtonTopLeftY - 5
+                    + (intChangeShootButtonBottomRightY - intChangeShootButtonTopLeftY) / 2;
+            line(checkX, checkY, checkX + checkSize / 2, checkY + checkSize);
+            line(checkX + checkSize / 2, checkY + checkSize, checkX + checkSize, checkY - checkSize / 2);
+        }
+
+        // Draw checkbox text on the right-hand side of the checkmark
+        fill(255);
+        textAlign(LEFT, CENTER); 
+        textSize(20);
+
+        float textX = intChangeShootButtonTopLeftX + 60; 
+        float textY = intChangeShootButtonTopLeftY
+                + (intChangeShootButtonBottomRightY - intChangeShootButtonTopLeftY) / 2;
+
+        int boldness = 3; 
+
+        for (int i = 0; i < boldness; i++) {
+            text("CHANGE SHOOT TO LEFT MOUSE BUTTON.", textX + i, textY);
+        }
+
+    }
 }
