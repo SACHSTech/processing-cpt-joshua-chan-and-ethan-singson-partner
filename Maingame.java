@@ -20,22 +20,29 @@ public class Maingame extends PApplet {
     int playerHitDuration = 40; // milliseconds
 
     // Declare player image variable
-    PImage stageOnePlayerImage;
-    PImage stageTwoPlayerImage;
-    PImage stageThreePlayerImage;
+    PImage stage1PlayerImage;
+    PImage stage2PlayerImage;
+    PImage stage3PlayerImage;
     PImage enemyImage;
     PImage enemyHitImage;
     PImage playerStage1HitImage;
+    PImage playerStage2HitImage;
+    PImage playerStage3HitImage;
+    
 
     // Declare background image variables
     PImage startMenu;
+    PImage startHover;
     PImage howToMenu;
+    PImage howToHover;
     PImage optionsMenu;
+    PImage optionsHover;
     PImage level1;
     PImage level2;
     PImage level3;
     PImage health;
     PImage gameOverScreen;
+    PImage endWinScreen;
     PImage level6;
 
     // Enemy Variables
@@ -148,20 +155,26 @@ public class Maingame extends PApplet {
         resetGame();
 
         // Load the player image
-        stageOnePlayerImage = loadImage("nerd.png");
-        stageTwoPlayerImage = loadImage("secondstagesprite.png");
-        stageThreePlayerImage = loadImage("FINAL_SPRITE.png");
-        enemyHitImage = loadImage("enemyhit.png");
+        stage1PlayerImage = loadImage("nerd.png");
+        stage2PlayerImage = loadImage("secondstagesprite.png");
+        stage3PlayerImage = loadImage("FINAL_SPRITE.png");
         playerStage1HitImage = loadImage("nerdhit.png");
+        playerStage2HitImage = loadImage("sprite2hit.png");
+        playerStage3HitImage = loadImage("finalspritehit.png");
 
         // Load the enemy image
         enemyImage = loadImage("enemy.png");
+        enemyHitImage = loadImage("enemyhit.png");
 
         // Load backgrounds
         startMenu = loadImage("START_MENU.png");
+        startHover = loadImage("startgamehover.png");
         howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
+        howToHover = loadImage("htphover.png");
         optionsMenu = loadImage("options.png");
+        optionsHover = loadImage("optionshover.png");
         gameOverScreen = loadImage("gameover.png");
+        endWinScreen = loadImage("end.png");
         level1 = loadImage("level1.png");
         level2 = loadImage("level2.png");
         level3 = loadImage("level3.png");
@@ -250,7 +263,7 @@ public class Maingame extends PApplet {
             movePlayer();
 
             // Display the player using the image
-            image(stageTwoPlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            image(stage2PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -293,7 +306,7 @@ public class Maingame extends PApplet {
             movePlayer();
 
             // Display the player using the image
-            image(stageThreePlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            image(stage3PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
 
             // Move and display player lasers
             movePlayerLasers();
@@ -323,6 +336,10 @@ public class Maingame extends PApplet {
         else if (intLevel == 7) {
             image(gameOverScreen, 0, 0, width, height);
         }
+        
+        else if (intLevel == 8) {
+            image(endWinScreen, 0, 0, width, height);
+        }
 
         // Check if any circle has reached the bottom of the screen
         for (int i = 0; i < intNumCircles; i++) {
@@ -339,7 +356,7 @@ public class Maingame extends PApplet {
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
-            if (intLevel < 7) { // Max level is 7 in your code
+            if (intLevel < 8) { // 
                 intLevel++;
                 resetGame(); // Reset the game for the next level
             } else {
@@ -349,7 +366,7 @@ public class Maingame extends PApplet {
             }
         }
 
-        if (intPlayerHealth > 0 && intLevel >= 4 && intLevel < 7) {
+        if (intPlayerHealth > 0 && intLevel == 4) {
             if (blnIsPlayerHit) {
                 // Check if enough time has passed since the player was hit
                 if (millis() - playerHitStartTime >= playerHitDuration) {
@@ -358,10 +375,52 @@ public class Maingame extends PApplet {
                     image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
                 }
             } else {
-                image(stageOnePlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+                image(stage1PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
             }
         }
+    
+      if (intPlayerHealth > 0 && intLevel == 5) {
+        if (blnIsPlayerHit) {
+            // Check if enough time has passed since the player was hit
+            if (millis() - playerHitStartTime >= playerHitDuration) {
+                blnIsPlayerHit = false;
+            } else {
+                image(playerStage2HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            }
+        } else {
+            image(stage2PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+        }
     }
+
+
+    if (intPlayerHealth > 0 && intLevel == 6 ) {
+        if(blnIsPlayerHit) {
+            if(millis() - playerHitStartTime >= playerHitDuration) {
+                blnIsPlayerHit = false;
+            } else {
+                image(playerStage3HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            }
+         } else {
+                image(stage3PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            }
+        }
+
+
+
+    if (isMouseInsideStartButton() && intLevel == 1) {
+        image(startHover, intStartTopLeftX - 18, intStartTopLeftY - 6.02f);
+    }
+
+
+    if (isMouseInsideHowToPlayButton() && intLevel == 1) { 
+        image(howToHover, intHTPButtonTopLeftX - 18, intHTPButtonTopLeftY -6);
+    }
+
+    if (isMouseInsideOptionsButton() && intLevel == 1) {
+        image(optionsHover, intOptionsButtonTopLeftX, intOptionsButtonTopLeftY);
+    }
+}
+    
 
     void moveCircles() {
         // Move circles side to side with consistent speed
