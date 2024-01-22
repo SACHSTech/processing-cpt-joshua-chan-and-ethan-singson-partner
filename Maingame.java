@@ -10,7 +10,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 6;
+    int intLevel = 1;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -147,7 +147,7 @@ public class Maingame extends PApplet {
     boolean blnGameOver = false;
 
     public void settings() {
-        size(600, 750);
+        size(600, 750); 
     }
 
     public void setup() {
@@ -332,13 +332,12 @@ public class Maingame extends PApplet {
             }
 
         }
-
-        else if (intLevel == 7) {
-            image(gameOverScreen, 0, 0, width, height);
-        }
         
-        else if (intLevel == 8) {
+        else if (intLevel == 7) {
             image(endWinScreen, 0, 0, width, height);
+        }
+        else if (intLevel == 8) {
+            image(gameOverScreen, 0, 0, width, height);
         }
 
         // Check if any circle has reached the bottom of the screen
@@ -351,7 +350,7 @@ public class Maingame extends PApplet {
         }
 
         if (blnGameOver) {
-            intLevel = 7;
+            intLevel = 8;
         }
 
         // Check if all circles are hit to advance to the next level
@@ -361,7 +360,7 @@ public class Maingame extends PApplet {
                 resetGame(); // Reset the game for the next level
             } else {
 
-                intLevel = 7;
+                intLevel = 8;
                 resetGame();
             }
         }
@@ -413,11 +412,11 @@ public class Maingame extends PApplet {
 
 
     if (isMouseInsideHowToPlayButton() && intLevel == 1) { 
-        image(howToHover, intHTPButtonTopLeftX - 18, intHTPButtonTopLeftY -6);
+        image(howToHover, intHTPButtonTopLeftX - 19, intHTPButtonTopLeftY - 5);
     }
 
     if (isMouseInsideOptionsButton() && intLevel == 1) {
-        image(optionsHover, intOptionsButtonTopLeftX, intOptionsButtonTopLeftY);
+        image(optionsHover, intOptionsButtonTopLeftX - 17, intOptionsButtonTopLeftY - 4);
     }
 }
     
