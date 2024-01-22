@@ -412,11 +412,11 @@ public class Maingame extends PApplet {
 
 
     if (isMouseInsideHowToPlayButton() && intLevel == 1) { 
-        image(howToHover, intHTPButtonTopLeftX - 19, intHTPButtonTopLeftY - 5);
+        image(howToHover, intHTPButtonTopLeftX - 16, intHTPButtonTopLeftY - 4);
     }
 
     if (isMouseInsideOptionsButton() && intLevel == 1) {
-        image(optionsHover, intOptionsButtonTopLeftX - 17, intOptionsButtonTopLeftY - 4);
+        image(optionsHover, intOptionsButtonTopLeftX - 16, intOptionsButtonTopLeftY - 4);
     }
 }
     
