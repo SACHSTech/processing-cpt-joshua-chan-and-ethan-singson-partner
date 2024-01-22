@@ -13,7 +13,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 1;
+    int intLevel = 5;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -320,7 +320,7 @@ public class Maingame extends PApplet {
                 specialEnemyShoot(i);
             }
 
-        } else if (intLevel == 6) {
+        } else if (intLevel == 7) {
             background(level3);
             newWaveStartTime = 0;
             for (int i = 0; i < intPlayerHealth; i++) {
@@ -360,9 +360,7 @@ public class Maingame extends PApplet {
                 enemyShoot(i);
                 specialEnemyShoot(i);
             }
-        }
-
-        else if (intLevel == 8) {
+        } else if (intLevel == 8) {
 
             image(endWinScreen, 0, 0, width, height);
 
@@ -1017,7 +1015,7 @@ public class Maingame extends PApplet {
     }
 
     // Check if the mouse is pressed over the Game Over button
-    if (intLevel == 8 && isMouseInsideGameOverButton()) {
+    if (intLevel == 9 && isMouseInsideGameOverButton()) {
 
         resetGame(); // Reset the game when the Game Over button is pressed
         intLevel = 1; // Set the level to return to the Menu screen
@@ -1025,7 +1023,7 @@ public class Maingame extends PApplet {
     }
 
     // Check if the mouse is pressed over the Win Game button
-    if (intLevel == 7 && isMouseInsideWinGameButton()) {
+    if (intLevel == 8 && isMouseInsideWinGameButton()) {
 
         resetGame();
         intLevel = 1; // Set the level to return to the Menu screen
