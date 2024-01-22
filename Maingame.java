@@ -1,3 +1,14 @@
+/* 
+Rest of the newwave screens
+bossWarning
+Boss level (mechanics, shield, bullets)
+boss design
+
+*/ 
+
+
+
+
 import processing.core.PApplet;
 import processing.core.PImage;
 
