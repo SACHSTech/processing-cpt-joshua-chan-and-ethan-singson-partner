@@ -13,7 +13,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 1;
+    int intLevel = 4;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -46,6 +46,8 @@ public class Maingame extends PApplet {
     PImage gameOverScreen;
     PImage endWinScreen;
     PImage level6;
+    PImage newWave;
+    PImage bossWarning;
 
     // Enemy Variables
     int intNumCircles = 7;
@@ -142,6 +144,11 @@ public class Maingame extends PApplet {
     // Variable for game state
     boolean blnGameOver = false;
 
+    // Variable to store the start time of the new wave
+    long newWaveStartTime = 0;
+    // Duration of the new wave display in milliseconds
+    int newWaveDuration = 2000; // Change this value to set the duration (in milliseconds)
+
     // Define Screen Size
     public void settings() {
         size(600, 750);
@@ -159,6 +166,7 @@ public class Maingame extends PApplet {
         playerStage2HitImage = loadImage("intergalaticmogger/player/stage2spritehit.png");
         playerStage3HitImage = loadImage("intergalaticmogger/player/stage3spritehit.png");
         health = loadImage("intergalaticmogger/player/health.png");
+        health.resize(60, 60);
 
         // Load the enemy image
         enemyImage = loadImage("intergalaticmogger/enemies/enemy.png");
@@ -176,7 +184,8 @@ public class Maingame extends PApplet {
         level1 = loadImage("intergalaticmogger/levels/level1.png");
         level2 = loadImage("intergalaticmogger/levels/level2.png");
         level3 = loadImage("intergalaticmogger/levels/level3.png");
-        health.resize(60, 60);
+        newWave = loadImage("intergalaticmogger/levels/newwave.png");
+        bossWarning = loadImage("intergalaticmogger/levels/warningboss.png");
 
         // Initialize circle speeds with random values
         for (int i = 0; i < intNumCircles; i++) {
@@ -197,97 +206,114 @@ public class Maingame extends PApplet {
         }
     }
 
-    public void draw() {
-
-        // Draw Levels
-
-        if (intLevel == 1) {
-
-            image(startMenu, 0, 0, width, height);
-        } else if (intLevel == 2) {
-
-            image(optionsMenu, 0, 0, width, height);
-
-            drawChangeMovementButton();
-            drawChangeShootButton();
-
-        } else if (intLevel == 3) {
-  
-            image(howToMenu, 0, 0, width, height);
-
-        } else if (intLevel == 4) {
-
-            background(level1);
-
-            // Draw health.png at the top right of the screen
-            for (int i = 0; i < intPlayerHealth; i++) {
-                image(health, width - health.width * (i + 1), 10);
+ public void draw() {
+    // Draw Levels
+    if (intLevel == 1) {
+        image(startMenu, 0, 0, width, height);
+    } else if (intLevel == 2) {
+        image(optionsMenu, 0, 0, width, height);
+        drawChangeMovementButton();
+        drawChangeShootButton();
+    } else if (intLevel == 3) {
+        image(howToMenu, 0, 0, width, height);
+    } else if (intLevel == 4) {
+        background(level1);
+        // Draw health.png at the top right of the screen
+        for (int i = 0; i < intPlayerHealth; i++) {
+            image(health, width - health.width * (i + 1), 10);
+        }
+        // Movement of the player
+        handleInput();
+        movePlayer();
+        // Move and display player lasers
+        movePlayerLasers();
+        displayPlayerLasers();
+        // Check for collisions with the player laser
+        checkCollisions();
+        // Check for collisions with purple lasers
+        checkPlayerCollisions();
+        // Move and display circles
+        moveCircles();
+        displayCircles();
+        // Move and display lasers
+        moveLasers();
+        displayLasers();
+        // Enemy shooting logic
+        for (int i = 0; i < intNumCircles; i++) {
+            enemyShoot(i);
+        }
+        // Display the player using the image
+        if (intPlayerHealth > 0 && !blnIsPlayerHit) {
+            image(stage1PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+        } else if (intPlayerHealth > 0) {
+            // Check if enough time has passed since the player was hit
+            if (millis() - playerHitStartTime >= playerHitDuration) {
+                blnIsPlayerHit = false;
+            } else {
+                image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
             }
+        }
+     } else if (intLevel == 5) {
+        // Check if it's a new wave
+        if (newWaveStartTime == 0) {
+            // Set the start time of the new wave
+            newWaveStartTime = millis();
+        }
+        // Calculate the elapsed time since the new wave started
+        long elapsedTime = millis() - newWaveStartTime;
+        // Calculate the time remaining until the new wave ends
+        long timeRemaining = newWaveDuration - elapsedTime;
 
-            // Movement of the player
-            handleInput();
-            movePlayer();
-
-            // Move and display player lasers
-            movePlayerLasers();
-            displayPlayerLasers();
-
-            // Check for collisions with the player laser
-            checkCollisions();
-
-            // Check for collisions with purple lasers
-            checkPlayerCollisions();
-
-            // Move and display circles
-            moveCircles();
-            displayCircles();
-
-            // Move and display lasers
-            moveLasers();
-            displayLasers();
-
-            // Enemy shooting logic
-            for (int i = 0; i < intNumCircles; i++) {
-                enemyShoot(i);
+        // Check if it's time to transition to the next level
+        if (timeRemaining <= 0) {
+            intLevel++;
+            resetGame();
+            newWaveStartTime = 0; // Reset new wave start time
+        } else {
+            // Flash the new wave screen by displaying it for half of the remaining time
+            if (timeRemaining % 1000 > 500) {
+                image(newWave, 0, 0, width, height);
+            } else {
+                image(level1,0,0,width,height); // Display Level 1 image
             }
+        }
 
-        } else if (intLevel == 5) {
 
+        } else if (intLevel == 6) {
             background(level2);
-
+            newWaveStartTime = 0;
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
-
             }
-
             handleInput();
             movePlayer();
-
             // Display the player using the image
-            image(stage2PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-
+            if (intPlayerHealth > 0 && !blnIsPlayerHit) {
+                image(stage2PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            } else if (intPlayerHealth > 0) {
+                // Check if enough time has passed since the player was hit
+                if (millis() - playerHitStartTime >= playerHitDuration) {
+                    blnIsPlayerHit = false;
+                } else {
+                    image(playerStage2HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+                }
+            }
             // Move and display player lasers
             movePlayerLasers();
             displayPlayerLasers();
-
             // Check for collisions with the player laser
             checkCollisions();
-
             // Check for collisions with purple lasers
             checkPlayerCollisions();
-
             // Move and display circles
             moveCircles();
             displayCircles();
-
             // Move and display lasers
             moveLasers();
             displayLasers();
-
             // Move and display special lasers
             moveSpecialLasers();
             displaySpecialLasers();
-
             // Enemy shooting logic
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
@@ -295,50 +321,52 @@ public class Maingame extends PApplet {
             }
 
         } else if (intLevel == 6) {
-
             background(level3);
-
+            newWaveStartTime = 0;
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
-
             }
-
             handleInput();
             movePlayer();
-
             // Display the player using the image
-            image(stage3PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-
+            if (intPlayerHealth > 0 && !blnIsPlayerHit) {
+                image(stage3PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            } else if (intPlayerHealth > 0) {
+                // Check if enough time has passed since the player was hit
+                if (millis() - playerHitStartTime >= playerHitDuration) {
+                    blnIsPlayerHit = false;
+                } else {
+                    image(playerStage3HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+                }
+            }
             // Move and display player lasers
             movePlayerLasers();
             displayPlayerLasers();
-
             // Check for collisions with the player laser
             checkCollisions();
-
             // Check for collisions with purple lasers
             checkPlayerCollisions();
-
             // Move and display circles
             moveCircles();
             displayCircles();
-
             // Move and display lasers
             moveLasers();
             displayLasers();
-
+            // Move and display special lasers
+            moveSpecialLasers();
+            displaySpecialLasers();
             // Enemy shooting logic
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
+                specialEnemyShoot(i);
             }
-
         }
 
-        else if (intLevel == 7) {
+        else if (intLevel == 8) {
 
             image(endWinScreen, 0, 0, width, height);
 
-        } else if (intLevel == 8) {
+        } else if (intLevel == 9) {
 
             image(gameOverScreen, 0, 0, width, height);
 
@@ -356,21 +384,21 @@ public class Maingame extends PApplet {
 
         if (blnGameOver) {
 
-            intLevel = 8;
+            intLevel = 9;
 
         }
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
 
-            if (intLevel < 8) { 
+            if (intLevel < 9) {
 
                 intLevel++;
                 resetGame();
 
             } else {
 
-                intLevel = 8;
+                intLevel = 9;
                 resetGame();
 
             }
@@ -396,8 +424,8 @@ public class Maingame extends PApplet {
             }
         }
 
-        if (intPlayerHealth > 0 && intLevel == 5) {
-            
+        if (intPlayerHealth > 0 && intLevel == 6) {
+
             if (blnIsPlayerHit) {
 
                 // Check if enough time has passed since the player was hit
@@ -418,7 +446,7 @@ public class Maingame extends PApplet {
             }
         }
 
-        if (intPlayerHealth > 0 && intLevel == 6) {
+        if (intPlayerHealth > 0 && intLevel == 7) {
 
             if (blnIsPlayerHit) {
 
@@ -457,6 +485,7 @@ public class Maingame extends PApplet {
 
         }
     }
+
 
     void moveCircles() {
 
