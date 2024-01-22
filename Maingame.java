@@ -10,7 +10,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 1;
+    int intLevel = 6;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -155,30 +155,30 @@ public class Maingame extends PApplet {
         resetGame();
 
         // Load the player image
-        stage1PlayerImage = loadImage("nerd.png");
-        stage2PlayerImage = loadImage("secondstagesprite.png");
-        stage3PlayerImage = loadImage("FINAL_SPRITE.png");
-        playerStage1HitImage = loadImage("nerdhit.png");
-        playerStage2HitImage = loadImage("sprite2hit.png");
-        playerStage3HitImage = loadImage("finalspritehit.png");
+        stage1PlayerImage = loadImage("intergalaticmogger/player/stage1sprite.png");
+        stage2PlayerImage = loadImage("intergalaticmogger/player/stage2sprite.png");
+        stage3PlayerImage = loadImage("intergalaticmogger/player/stage3sprite.png");
+        playerStage1HitImage = loadImage("intergalaticmogger/player/stage1spritehit.png");
+        playerStage2HitImage = loadImage("intergalaticmogger/player/stage2spritehit.png");
+        playerStage3HitImage = loadImage("intergalaticmogger/player/stage3spritehit.png");
+        health = loadImage("intergalaticmogger/player/health.png");
 
         // Load the enemy image
-        enemyImage = loadImage("enemy.png");
-        enemyHitImage = loadImage("enemyhit.png");
+        enemyImage = loadImage("intergalaticmogger/enemies/enemy.png");
+        enemyHitImage = loadImage("intergalaticmogger/enemies/enemyhit.png");
 
         // Load backgrounds
-        startMenu = loadImage("START_MENU.png");
-        startHover = loadImage("startgamehover.png");
-        howToMenu = loadImage("HOW_TO_PLAY_FINAL.png");
-        howToHover = loadImage("htphover.png");
-        optionsMenu = loadImage("options.png");
-        optionsHover = loadImage("optionshover.png");
-        gameOverScreen = loadImage("gameover.png");
-        endWinScreen = loadImage("end.png");
-        level1 = loadImage("level1.png");
-        level2 = loadImage("level2.png");
-        level3 = loadImage("level3.png");
-        health = loadImage("health.png");
+        startMenu = loadImage("intergalaticmogger/levels/startmenu.png");
+        startHover = loadImage("intergalaticmogger/levels/startgamehover.png");
+        howToMenu = loadImage("intergalaticmogger/levels/howtoplay.png");
+        howToHover = loadImage("intergalaticmogger/levels/htphover.png");
+        optionsMenu = loadImage("intergalaticmogger/levels/options.png");
+        optionsHover = loadImage("intergalaticmogger/levels/optionshover.png");
+        gameOverScreen = loadImage("intergalaticmogger/levels/gameover.png");
+        endWinScreen = loadImage("intergalaticmogger/levels/end.png");
+        level1 = loadImage("intergalaticmogger/levels/level1.png");
+        level2 = loadImage("intergalaticmogger/levels/level2.png");
+        level3 = loadImage("intergalaticmogger/levels/level3.png");
         health.resize(60, 60);
 
         // Initialize circle speeds with random values
