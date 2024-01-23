@@ -50,6 +50,8 @@ public class Maingame extends PApplet {
     PImage enemyHitImage;
     PImage bossImage;
     PImage bossHitImage;
+    PImage bossImageEnraged;
+    PImage bossHitEnraged;
 
     // Declare background image variables
     PImage startMenu;
@@ -195,6 +197,8 @@ public class Maingame extends PApplet {
 
         bossImage = loadImage("intergalaticmogger/enemies/boss.png");
         bossHitImage = loadImage("intergalaticmogger/enemies/bosshit.png");
+        bossImageEnraged = loadImage("intergalaticmogger/enemies/leahunenraged.png");
+        bossHitEnraged = loadImage("intergalaticmogger/enemies/leahunhitenraged.png");
         bossName = loadImage("intergalaticmogger/enemies/leahun.png");
 
         // Load backgrounds
