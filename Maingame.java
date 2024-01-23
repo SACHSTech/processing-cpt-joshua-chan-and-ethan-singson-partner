@@ -13,7 +13,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 1;
+    int intLevel = 9;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -69,6 +69,7 @@ public class Maingame extends PApplet {
     PImage level6;
     PImage newWave;
     PImage bossWarning;
+    PImage bossWarningEnraged;
 
     // Enemy Variables
     int intNumCircles = 7;
@@ -215,6 +216,7 @@ public class Maingame extends PApplet {
         level3 = loadImage("intergalaticmogger/levels/level3.png");
         newWave = loadImage("intergalaticmogger/levels/newwave.png");
         bossWarning = loadImage("intergalaticmogger/levels/warningboss.png");
+        bossWarningEnraged = loadImage("intergalaticmogger/levels/enragedbosstext.png");
 
         // Initialize circle speeds with random values
         for (int i = 0; i < intNumCircles; i++) {
@@ -435,19 +437,21 @@ public class Maingame extends PApplet {
 
             // Check for victory condition
             if (isBossDefeated()) {
-                intLevel = 10; // Player wins
+                intLevel = 11; // Player wins
                 resetGame();
             }
+
+        
 
             fltSpecialLaserSpeed = 4f;
             fltSpecialLaserSpeedY = 4f;
 
             fltLaserSpeed = 2.5f;
 
-        } else if (intLevel == 10) {
+        } else if (intLevel == 11) {
             image(endWinScreen, 0, 0, width, height);
 
-        } else if (intLevel == 11) {
+        } else if (intLevel == 12) {
             image(gameOverScreen, 0, 0, width, height);
         }
 
@@ -463,21 +467,21 @@ public class Maingame extends PApplet {
 
         if (blnGameOver) {
 
-            intLevel = 11;
+            intLevel = 12;
 
         }
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
 
-            if (intLevel < 10) {
+            if (intLevel < 11) {
 
                 intLevel++;
                 resetGame();
 
             } else {
 
-                intLevel = 11;
+                intLevel = 12;
                 resetGame();
 
             }
@@ -1133,7 +1137,7 @@ public class Maingame extends PApplet {
     void bossShoot() {
         // Check if the boss is not hit before shooting
         if (!blnIsBossHit) {
-            long shootInterval = 1650;
+            long shootInterval = 1800;
 
             // Check if enough time has passed since the last regular shot
             if (millis() - lastRegularShootTime > shootInterval) {
