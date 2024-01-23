@@ -1,14 +1,3 @@
-/* 
-Rest of the newwave screens
-bossWarning
-Boss level (mechanics, shield, bullets)
-boss design
-
-*/ 
-
-
-
-
 import processing.core.PApplet;
 import processing.core.PImage;
 
@@ -39,6 +28,8 @@ public class Maingame extends PApplet {
     PImage stage3PlayerImage;
     PImage enemyImage;
     PImage enemyHitImage;
+    PImage bossImage;
+    PImage bossHitImage;
     PImage playerStage1HitImage;
     PImage playerStage2HitImage;
     PImage playerStage3HitImage;
@@ -182,6 +173,11 @@ public class Maingame extends PApplet {
         // Load the enemy image
         enemyImage = loadImage("intergalaticmogger/enemies/enemy.png");
         enemyHitImage = loadImage("intergalaticmogger/enemies/enemyhit.png");
+
+        // Load the boss image
+
+        bossImage = loadImage("intergalaticmogger/enemies/boss.png");
+        bossHitImage  = loadImage("intergalaticmogger/enemies/bosshit.png");
 
         // Load backgrounds
         startMenu = loadImage("intergalaticmogger/levels/startmenu.png");
