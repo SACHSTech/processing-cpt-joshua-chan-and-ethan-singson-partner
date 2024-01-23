@@ -1365,6 +1365,7 @@ public class Maingame extends PApplet {
     }
 
     public void resetGame() {
+
         // Reset player variables
         intPlayerX = width / 2;
         intPlayerY = height - 80;
@@ -1377,6 +1378,13 @@ public class Maingame extends PApplet {
         fltBossSpeed = 2.0f; // Adjust boss speed as needed
         blnIsBossHit = false;
         intBossHitCount = 0;
+        intBossHealth = 45;
+
+        // Reset Bullet Speeds
+        fltLaserSpeed = 5;
+        fltPlayerLaserSpeed = 7;
+        fltSpecialLaserSpeed = 3f;
+        fltSpecialLaserSpeedY = 1.5f;
 
         // Reset circle variables
         fltCircleY = (float) (height / 10); // Adjust the Y position of circles
@@ -1497,5 +1505,6 @@ public class Maingame extends PApplet {
             text("CHANGE SHOOT TO LEFT MOUSE BUTTON.", textX + i, textY);
 
         }
+
     }
 }
