@@ -227,7 +227,33 @@ public class Maingame extends PApplet {
         drawChangeShootButton();
     } else if (intLevel == 3) {
         image(howToMenu, 0, 0, width, height);
-    } else if (intLevel == 4) {
+
+      } else if (intLevel == 4) {
+        // Check if it's a new wave
+        if (newWaveStartTime == 0) {
+            // Set the start time of the new wave
+            newWaveStartTime = millis();
+        }
+        // Calculate the elapsed time since the new wave started
+        long elapsedTime = millis() - newWaveStartTime;
+        // Calculate the time remaining until the new wave ends
+        long timeRemaining = newWaveDuration - elapsedTime;
+
+        // Check if it's time to transition to the next level
+        if (timeRemaining <= 0) {
+            intLevel++;
+            resetGame();
+            newWaveStartTime = 0; // Reset new wave start time
+        } else {
+            // Flash the new wave screen by displaying it for half of the remaining time
+            if (timeRemaining % 1000 > 500) {
+                image(newWave, 0, 0, width, height);
+            } else {
+                image(level1,0,0,width,height); // Display Level 1 image
+            }
+        }
+
+    } else if (intLevel == 5) {
         background(level1);
         // Draw health.png at the top right of the screen
         for (int i = 0; i < intPlayerHealth; i++) {
@@ -264,7 +290,8 @@ public class Maingame extends PApplet {
                 image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
             }
         }
-     } else if (intLevel == 5) {
+
+     } else if (intLevel == 6) {
         // Check if it's a new wave
         if (newWaveStartTime == 0) {
             // Set the start time of the new wave
@@ -285,12 +312,12 @@ public class Maingame extends PApplet {
             if (timeRemaining % 1000 > 500) {
                 image(newWave, 0, 0, width, height);
             } else {
-                image(level1,0,0,width,height); // Display Level 1 image
+                image(level2,0,0,width,height); // Display Level 1 image
             }
         }
 
 
-        } else if (intLevel == 6) {
+        } else if (intLevel == 7) {
             background(level2);
             newWaveStartTime = 0;
             for (int i = 0; i < intPlayerHealth; i++) {
@@ -331,7 +358,32 @@ public class Maingame extends PApplet {
                 specialEnemyShoot(i);
             }
 
-        } else if (intLevel == 7) {
+        } else if (intLevel == 8) {
+            // Check if it's a new wave
+            if (newWaveStartTime == 0) {
+                // Set the start time of the new wave
+                newWaveStartTime = millis();
+            }
+            // Calculate the elapsed time since the new wave started
+            long elapsedTime = millis() - newWaveStartTime;
+            // Calculate the time remaining until the new wave ends
+            long timeRemaining = newWaveDuration - elapsedTime;
+    
+            // Check if it's time to transition to the next level
+            if (timeRemaining <= 0) {
+                intLevel++;
+                resetGame();
+                newWaveStartTime = 0; // Reset new wave start time
+            } else {
+                // Flash the new wave screen by displaying it for half of the remaining time
+                if (timeRemaining % 1000 > 500) {
+                    image(bossWarning, 0, 0, width, height);
+                } else {
+                    image(level3,0,0,width,height); // Display Level 1 image
+                }
+            }
+
+        } else if (intLevel == 9) {
             background(level3);
             newWaveStartTime = 0;
             for (int i = 0; i < intPlayerHealth; i++) {
@@ -371,11 +423,11 @@ public class Maingame extends PApplet {
                 enemyShoot(i);
                 specialEnemyShoot(i);
             }
-        } else if (intLevel == 8) {
+        } else if (intLevel == 10) {
 
             image(endWinScreen, 0, 0, width, height);
 
-        } else if (intLevel == 9) {
+        } else if (intLevel == 11) {
 
             image(gameOverScreen, 0, 0, width, height);
 
@@ -393,27 +445,27 @@ public class Maingame extends PApplet {
 
         if (blnGameOver) {
 
-            intLevel = 9;
+            intLevel = 11;
 
         }
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
 
-            if (intLevel < 9) {
+            if (intLevel < 11) {
 
                 intLevel++;
                 resetGame();
 
             } else {
 
-                intLevel = 9;
+                intLevel = 11;
                 resetGame();
 
             }
         }
 
-        if (intPlayerHealth > 0 && intLevel == 4) {
+        if (intPlayerHealth > 0 && intLevel == 5) {
 
             if (blnIsPlayerHit) {
                 // Check if enough time has passed since the player was hit
@@ -433,7 +485,7 @@ public class Maingame extends PApplet {
             }
         }
 
-        if (intPlayerHealth > 0 && intLevel == 6) {
+        if (intPlayerHealth > 0 && intLevel == 7) {
 
             if (blnIsPlayerHit) {
 
@@ -455,7 +507,7 @@ public class Maingame extends PApplet {
             }
         }
 
-        if (intPlayerHealth > 0 && intLevel == 7) {
+        if (intPlayerHealth > 0 && intLevel == 9) {
 
             if (blnIsPlayerHit) {
 
@@ -1026,7 +1078,7 @@ public class Maingame extends PApplet {
     }
 
     // Check if the mouse is pressed over the Game Over button
-    if (intLevel == 9 && isMouseInsideGameOverButton()) {
+    if (intLevel == 11 && isMouseInsideGameOverButton()) {
 
         resetGame(); // Reset the game when the Game Over button is pressed
         intLevel = 1; // Set the level to return to the Menu screen
@@ -1034,7 +1086,7 @@ public class Maingame extends PApplet {
     }
 
     // Check if the mouse is pressed over the Win Game button
-    if (intLevel == 8 && isMouseInsideWinGameButton()) {
+    if (intLevel == 10 && isMouseInsideWinGameButton()) {
 
         resetGame();
         intLevel = 1; // Set the level to return to the Menu screen
