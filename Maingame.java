@@ -22,17 +22,34 @@ public class Maingame extends PApplet {
     long playerHitStartTime = 0;
     int playerHitDuration = 25; // milliseconds
 
+    // Boss variables
+    float fltBossX;
+    float fltBossY;
+    float fltBossSpeed;
+    float fltBossSize = 200;
+    boolean blnIsBossHit;
+    int intBossHitCount;
+    int intBossHealth = 45;
+    int intBossHitStartTime = 0;
+    int intBossHitDuration = 450;
+
+    private static long lastRegularShootTime = 0;
+    private static long lastSpecialShootTime = 0;
+
     // Declare player image variable
     PImage stage1PlayerImage;
     PImage stage2PlayerImage;
     PImage stage3PlayerImage;
+    PImage playerStage1HitImage;
+    PImage playerStage2HitImage;
+    PImage playerStage3HitImage;
+
+    // Declare enemy image variables
+    PImage bossName;
     PImage enemyImage;
     PImage enemyHitImage;
     PImage bossImage;
     PImage bossHitImage;
-    PImage playerStage1HitImage;
-    PImage playerStage2HitImage;
-    PImage playerStage3HitImage;
 
     // Declare background image variables
     PImage startMenu;
@@ -177,7 +194,8 @@ public class Maingame extends PApplet {
         // Load the boss image
 
         bossImage = loadImage("intergalaticmogger/enemies/boss.png");
-        bossHitImage  = loadImage("intergalaticmogger/enemies/bosshit.png");
+        bossHitImage = loadImage("intergalaticmogger/enemies/bosshit.png");
+        bossName = loadImage("intergalaticmogger/enemies/leahun.png");
 
         // Load backgrounds
         startMenu = loadImage("intergalaticmogger/levels/startmenu.png");
@@ -201,7 +219,6 @@ public class Maingame extends PApplet {
         }
 
         fltCircleY = (float) (height / 4.5);
-
         // Initialize laser positions and status
         for (int i = 0; i < intNumLasers; i++) {
             blnIsLaserActive[i] = false;
@@ -211,107 +228,108 @@ public class Maingame extends PApplet {
         for (int i = 0; i < intNumPlayerLasers; i++) {
             blnIsPlayerLaserActive[i] = false;
         }
+
     }
 
- public void draw() {
-    // Draw Levels
-    if (intLevel == 1) {
-        image(startMenu, 0, 0, width, height);
-    } else if (intLevel == 2) {
-        image(optionsMenu, 0, 0, width, height);
-        drawChangeMovementButton();
-        drawChangeShootButton();
-    } else if (intLevel == 3) {
-        image(howToMenu, 0, 0, width, height);
+    public void draw() {
 
-      } else if (intLevel == 4) {
-        // Check if it's a new wave
-        if (newWaveStartTime == 0) {
-            // Set the start time of the new wave
-            newWaveStartTime = millis();
-        }
-        // Calculate the elapsed time since the new wave started
-        long elapsedTime = millis() - newWaveStartTime;
-        // Calculate the time remaining until the new wave ends
-        long timeRemaining = newWaveDuration - elapsedTime;
+        // Draw Levels
+        if (intLevel == 1) {
+            image(startMenu, 0, 0, width, height);
+        } else if (intLevel == 2) {
+            image(optionsMenu, 0, 0, width, height);
+            drawChangeMovementButton();
+            drawChangeShootButton();
+        } else if (intLevel == 3) {
+            image(howToMenu, 0, 0, width, height);
 
-        // Check if it's time to transition to the next level
-        if (timeRemaining <= 0) {
-            intLevel++;
-            resetGame();
-            newWaveStartTime = 0; // Reset new wave start time
-        } else {
-            // Flash the new wave screen by displaying it for half of the remaining time
-            if (timeRemaining % 1000 > 500) {
-                image(newWave, 0, 0, width, height);
-            } else {
-                image(level1,0,0,width,height); // Display Level 1 image
+        } else if (intLevel == 4) {
+            // Check if it's a new wave
+            if (newWaveStartTime == 0) {
+                // Set the start time of the new wave
+                newWaveStartTime = millis();
             }
-        }
+            // Calculate the elapsed time since the new wave started
+            long elapsedTime = millis() - newWaveStartTime;
+            // Calculate the time remaining until the new wave ends
+            long timeRemaining = newWaveDuration - elapsedTime;
 
-    } else if (intLevel == 5) {
-        background(level1);
-        // Draw health.png at the top right of the screen
-        for (int i = 0; i < intPlayerHealth; i++) {
-            image(health, width - health.width * (i + 1), 10);
-        }
-        // Movement of the player
-        handleInput();
-        movePlayer();
-        // Move and display player lasers
-        movePlayerLasers();
-        displayPlayerLasers();
-        // Check for collisions with the player laser
-        checkCollisions();
-        // Check for collisions with purple lasers
-        checkPlayerCollisions();
-        // Move and display circles
-        moveCircles();
-        displayCircles();
-        // Move and display lasers
-        moveLasers();
-        displayLasers();
-        // Enemy shooting logic
-        for (int i = 0; i < intNumCircles; i++) {
-            enemyShoot(i);
-        }
-        // Display the player using the image
-        if (intPlayerHealth > 0 && !blnIsPlayerHit) {
-            image(stage1PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-        } else if (intPlayerHealth > 0) {
-            // Check if enough time has passed since the player was hit
-            if (millis() - playerHitStartTime >= playerHitDuration) {
-                blnIsPlayerHit = false;
+            // Check if it's time to transition to the next level
+            if (timeRemaining <= 0) {
+                intLevel++;
+                resetGame();
+                newWaveStartTime = 0; // Reset new wave start time
             } else {
-                image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+                // Flash the new wave screen by displaying it for half of the remaining time
+                if (timeRemaining % 1000 > 500) {
+                    image(newWave, 0, 0, width, height);
+                } else {
+                    image(level1, 0, 0, width, height); // Display Level 1 image
+                }
             }
-        }
 
-     } else if (intLevel == 6) {
-        // Check if it's a new wave
-        if (newWaveStartTime == 0) {
-            // Set the start time of the new wave
-            newWaveStartTime = millis();
-        }
-        // Calculate the elapsed time since the new wave started
-        long elapsedTime = millis() - newWaveStartTime;
-        // Calculate the time remaining until the new wave ends
-        long timeRemaining = newWaveDuration - elapsedTime;
+        } else if (intLevel == 5) {
+            background(level1);
+            // Draw health.png at the top right of the screen
+            for (int i = 0; i < intPlayerHealth; i++) {
+                image(health, width - health.width * (i + 1), 10);
+            }
+            // Movement of the player
+            handleInput();
+            movePlayer();
+            // Move and display player lasers
+            movePlayerLasers();
+            displayPlayerLasers();
+            // Check for collisions with the player laser
+            checkCollisions();
+            // Check for collisions with purple lasers
+            checkPlayerCollisions();
+            // Move and display circles
+            moveCircles();
+            displayCircles();
+            // Move and display lasers
+            moveLasers();
+            displayLasers();
+            // Enemy shooting logic
+            for (int i = 0; i < intNumCircles; i++) {
+                enemyShoot(i);
+            }
+            // Display the player using the image
+            if (intPlayerHealth > 0 && !blnIsPlayerHit) {
+                image(stage1PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+            } else if (intPlayerHealth > 0) {
+                // Check if enough time has passed since the player was hit
+                if (millis() - playerHitStartTime >= playerHitDuration) {
+                    blnIsPlayerHit = false;
+                } else {
+                    image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
+                }
+            }
 
-        // Check if it's time to transition to the next level
-        if (timeRemaining <= 0) {
-            intLevel++;
-            resetGame();
-            newWaveStartTime = 0; // Reset new wave start time
-        } else {
-            // Flash the new wave screen by displaying it for half of the remaining time
-            if (timeRemaining % 1000 > 500) {
-                image(newWave, 0, 0, width, height);
+        } else if (intLevel == 6) {
+            // Check if it's a new wave
+            if (newWaveStartTime == 0) {
+                // Set the start time of the new wave
+                newWaveStartTime = millis();
+            }
+            // Calculate the elapsed time since the new wave started
+            long elapsedTime = millis() - newWaveStartTime;
+            // Calculate the time remaining until the new wave ends
+            long timeRemaining = newWaveDuration - elapsedTime;
+
+            // Check if it's time to transition to the next level
+            if (timeRemaining <= 0) {
+                intLevel++;
+                resetGame();
+                newWaveStartTime = 0; // Reset new wave start time
             } else {
-                image(level2,0,0,width,height); // Display Level 1 image
+                // Flash the new wave screen by displaying it for half of the remaining time
+                if (timeRemaining % 1000 > 500) {
+                    image(newWave, 0, 0, width, height);
+                } else {
+                    image(level2, 0, 0, width, height); // Display Level 1 image
+                }
             }
-        }
-
 
         } else if (intLevel == 7) {
             background(level2);
@@ -364,7 +382,7 @@ public class Maingame extends PApplet {
             long elapsedTime = millis() - newWaveStartTime;
             // Calculate the time remaining until the new wave ends
             long timeRemaining = newWaveDuration - elapsedTime;
-    
+
             // Check if it's time to transition to the next level
             if (timeRemaining <= 0) {
                 intLevel++;
@@ -375,7 +393,7 @@ public class Maingame extends PApplet {
                 if (timeRemaining % 1000 > 500) {
                     image(bossWarning, 0, 0, width, height);
                 } else {
-                    image(level3,0,0,width,height); // Display Level 1 image
+                    image(level3, 0, 0, width, height); // Display Level 1 image
                 }
             }
 
@@ -387,17 +405,7 @@ public class Maingame extends PApplet {
             }
             handleInput();
             movePlayer();
-            // Display the player using the image
-            if (intPlayerHealth > 0 && !blnIsPlayerHit) {
-                image(stage3PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-            } else if (intPlayerHealth > 0) {
-                // Check if enough time has passed since the player was hit
-                if (millis() - playerHitStartTime >= playerHitDuration) {
-                    blnIsPlayerHit = false;
-                } else {
-                    image(playerStage3HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-                }
-            }
+
             // Move and display player lasers
             movePlayerLasers();
             displayPlayerLasers();
@@ -405,28 +413,38 @@ public class Maingame extends PApplet {
             checkCollisions();
             // Check for collisions with purple lasers
             checkPlayerCollisions();
-            // Move and display circles
-            moveCircles();
-            displayCircles();
+
             // Move and display lasers
             moveLasers();
             displayLasers();
+
             // Move and display special lasers
             moveSpecialLasers();
             displaySpecialLasers();
-            // Enemy shooting logic
-            for (int i = 0; i < intNumCircles; i++) {
-                enemyShoot(i);
-                specialEnemyShoot(i);
-            }
-        } else if (intLevel == 10) {
 
+            // Move and display the boss
+            moveBoss();
+            displayBoss();
+            displayBossHealthBar();
+            // Boss shooting logic
+            bossShoot();
+
+            // Check for victory condition
+            if (isBossDefeated()) {
+                intLevel = 10; // Player wins
+                resetGame();
+            }
+
+            fltSpecialLaserSpeed = 4f;
+            fltSpecialLaserSpeedY = 4f;
+
+            fltLaserSpeed = 2.5f;
+
+        } else if (intLevel == 10) {
             image(endWinScreen, 0, 0, width, height);
 
         } else if (intLevel == 11) {
-
             image(gameOverScreen, 0, 0, width, height);
-
         }
 
         // Check if any circle has reached the bottom of the screen
@@ -448,7 +466,7 @@ public class Maingame extends PApplet {
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
 
-            if (intLevel < 11) {
+            if (intLevel < 10) {
 
                 intLevel++;
                 resetGame();
@@ -543,7 +561,6 @@ public class Maingame extends PApplet {
         }
     }
 
-
     void moveCircles() {
 
         // Move circles side to side with consistent speed
@@ -587,25 +604,16 @@ public class Maingame extends PApplet {
     }
 
     void displayCircles() {
-
         // Display circles for the first row
         for (int i = 0; i < intNumCircles; i++) {
-
             if (!blnIsCircleHit[i]) {
-
                 if (intCircleHitCount[i] > 0 && millis() % 500 > 250) {
-
                     // Flash the enemy when hit
                     image(enemyHitImage, fltCircleX[i] - fltCircleDiameter / 2, fltCircleY - fltCircleDiameter / 2,
-                            fltCircleDiameter,
-                            fltCircleDiameter);
-
+                            fltCircleDiameter, fltCircleDiameter);
                 } else {
-
                     image(enemyImage, fltCircleX[i] - fltCircleDiameter / 2, fltCircleY - fltCircleDiameter / 2,
-                            fltCircleDiameter,
-                            fltCircleDiameter);
-
+                            fltCircleDiameter, fltCircleDiameter);
                 }
             }
         }
@@ -648,7 +656,7 @@ public class Maingame extends PApplet {
             } else if (key == 's' || key == 'S') {
 
                 blnDown = true;
-                
+
             } else if (key == 'a' || key == 'A') {
 
                 blnLeft = true;
@@ -727,7 +735,7 @@ public class Maingame extends PApplet {
         if (blnDown) {
 
             intPlayerY += intPlayerSpeed;
-            
+
         }
 
         if (blnLeft) {
@@ -896,7 +904,7 @@ public class Maingame extends PApplet {
                     fltSpecialLaserY[j] = fltCircleY;
                     blnIsSpecialLaserActive[j] = true;
                     break; // Exit the loop after activating one special laser
-                    
+
                 }
             }
         }
@@ -932,36 +940,6 @@ public class Maingame extends PApplet {
         }
     }
 
-    void checkCollisions() {
-
-        for (int i = 0; i < intNumPlayerLasers; i++) {
-
-            for (int j = 0; j < intNumCircles; j++) {
-
-                if (blnIsPlayerLaserActive[i] && !blnIsCircleHit[j] &&
-                
-                        circleHit(fltPlayerLaserX[i], fltPlayerLaserY[i], fltCircleX[j], fltCircleY,
-                                fltCircleDiameter / 2)) {
-                    // Increment the hit count for the circle
-                    intCircleHitCount[j]++;
-
-                    // Check if the circle has been hit twice
-                    if (intCircleHitCount[j] >= 2) {
-
-                        // Mark the circle as hit and move it off-screen
-                        blnIsCircleHit[j] = true;
-                        fltCircleX[j] = -1000; // Move the circle off-screen
-
-                    }
-
-                    // Deactivate player laser
-                    blnIsPlayerLaserActive[i] = false;
-
-                }
-            }
-        }
-    }
-
     void checkPlayerCollisions() {
 
         // Check regular laser collisions
@@ -977,7 +955,7 @@ public class Maingame extends PApplet {
                     handlePlayerHit();
                     // Deactivate the regular laser when it hits the player
                     blnIsLaserActive[i] = false;
-                    
+
                 }
             }
         }
@@ -1028,7 +1006,7 @@ public class Maingame extends PApplet {
     }
 
     void shootPlayerLaser() {
-        
+
         for (int i = 0; i < intNumPlayerLasers; i++) {
 
             if (!blnIsPlayerLaserActive[i]) {
@@ -1042,88 +1020,289 @@ public class Maingame extends PApplet {
         }
     }
 
-  public void mousePressed() {
+    void checkCollisions() {
 
-    // Check if the mouse is pressed over the start button
-    if (isMouseInsideStartButton() && intLevel == 1) {
+        checkBossCollisions();
 
-        resetGame(); // Reset the game when the Start Game button is pressed
-        intLevel = 4;
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            for (int j = 0; j < intNumCircles; j++) {
+                if (blnIsPlayerLaserActive[i] && !blnIsCircleHit[j] &&
+                        circleHit(fltPlayerLaserX[i], fltPlayerLaserY[i], fltCircleX[j], fltCircleY,
+                                fltCircleDiameter / 2)) {
+                    // Increment the hit count for the circle
+                    intCircleHitCount[j]++;
 
-    }
+                    // Check if the circle has been hit twice
+                    if (intCircleHitCount[j] >= 2) {
+                        // Mark the circle as hit and move it off-screen
+                        blnIsCircleHit[j] = true;
+                        fltCircleX[j] = -1000; // Move the circle off-screen
+                    }
 
-    // Check if the mouse is pressed over the How to Play button
-    if (isMouseInsideHowToPlayButton() && intLevel == 1) {
+                    // Deactivate player laser
+                    blnIsPlayerLaserActive[i] = false;
 
-        intLevel = 3; // Set the level to show How to Play screen
-
-    }
-
-    // Check if the mouse is pressed over the back to menu button
-    if (isMouseInsideMenuButton() && (intLevel == 2 || intLevel == 3)) {
-
-        intLevel = 1; // Set the level to show Menu screen
-
-    }
-
-    // Check if the mouse is pressed over the options button
-    if (isMouseInsideOptionsButton() && intLevel == 1) {
-
-        intLevel = 2;
-
-    }
-
-    // Check if the mouse is pressed over the Game Over button
-    if (intLevel == 11 && isMouseInsideGameOverButton()) {
-
-        resetGame(); // Reset the game when the Game Over button is pressed
-        intLevel = 1; // Set the level to return to the Menu screen
-
-    }
-
-    // Check if the mouse is pressed over the Win Game button
-    if (intLevel == 10 && isMouseInsideWinGameButton()) {
-
-        resetGame();
-        intLevel = 1; // Set the level to return to the Menu screen
-
-    }
-
-    // Check if the mouse is pressed over the checkbox in the options menu
-    if (intLevel == 2 && mouseX >= intChangeMovementButtonTopLeftX
-            && mouseX <= intChangeMovementButtonBottomRightX && mouseY >= intChangeMovementButtonTopLeftY
-            && mouseY <= intChangeMovementButtonBottomRightY) {
-
-        blnChangeMovementButtonPressed = !blnChangeMovementButtonPressed;
-
-    }
-
-    // Check if the mouse is pressed over the checkbox in the options menu
-    if (intLevel == 2 && mouseX >= intChangeShootButtonTopLeftX
-            && mouseX <= intChangeShootButtonBottomRightX && mouseY >= intChangeShootButtonTopLeftY
-            && mouseY <= intChangeShootButtonBottomRightY) {
-
-        blnChangeShootButtonPressed = !blnChangeShootButtonPressed;
-
-    }
-
-    if (blnChangeShootButtonPressed && mouseButton == LEFT) {
-
-        // Check if enough time has passed since the last shot
-        long currentTime = millis();
-        if (currentTime - lastClickTime >= intLaserCooldown) {
-
-            // Shoot a player laser
-            shootPlayerLaser();
-            lastClickTime = currentTime;
-
+                }
+            }
         }
     }
-}
 
+    void checkBossCollisions() {
+        // Check player laser collisions with the boss
+        for (int i = 0; i < intNumPlayerLasers; i++) {
+            if (blnIsPlayerLaserActive[i] && !blnIsBossHit &&
+                    circleHit(fltPlayerLaserX[i], fltPlayerLaserY[i], fltBossX, fltBossY, fltBossSize / 2)) {
+                intBossHitCount++;
+                intBossHealth--; // Decrease boss health when hit by a player laser
+                blnIsPlayerLaserActive[i] = false; // Deactivate player laser
+
+                blnIsBossHit = true;
+
+                // Check if the boss has been hit enough times
+                if (isBossDefeated()) {
+
+                    // Optionally, you can reset intBossHitCount here if needed
+                    // intBossHitCount = 0;
+                    fltBossX = -1000; // Move the boss off-screen
+                }
+            }
+        }
+    }
+
+    void displayBoss() {
+        if (!blnIsBossHit) {
+            image(bossImage, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
+        } else {
+            // Show the bossHitImage for 500 milliseconds
+            image(bossHitImage, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
+
+            // Check if the display duration has elapsed
+            if (millis() - intBossHitStartTime > intBossHitDuration) {
+                blnIsBossHit = false; // Reset boss hit state
+                intBossHitStartTime = millis(); // Reset hit start time for the next hit
+
+            }
+        }
+    }
+
+    void moveBoss() {
+        // Move boss side to side with consistent speed
+        boolean edgeReached = false; // Variable to track if the boss has reached the edge
+
+        fltBossX += fltBossSpeed;
+
+        // Reverse direction if the boss reaches the screen edges
+        if (fltBossX > width - fltBossSize / 2 || fltBossX < fltBossSize / 2) {
+            fltBossSpeed *= -1;
+            // Ensure the boss stays within the screen bounds
+            fltBossX = constrain(fltBossX, fltBossSize / 2, width - fltBossSize / 2);
+
+            // Mark that the boss has reached the edge
+            edgeReached = true;
+        }
+
+        // Move the boss down after reaching the screen edges
+        if (edgeReached) {
+            fltBossY += 10; // Adjust the vertical movement as needed
+
+            // Reset hit count for the boss that reaches the bottom
+            if (fltBossY + fltBossSize / 2 > height && !blnIsBossHit) {
+                intBossHitCount = 0;
+            }
+
+            edgeReached = false; // Reset the edgeReached variable
+        }
+    }
+
+    void bossShoot() {
+        // Check if the boss is not hit before shooting
+        if (!blnIsBossHit) {
+
+            long shootInterval = 1650;
+
+            // Check if enough time has passed since the last regular shot
+            if (millis() - lastRegularShootTime > shootInterval) {
+                // Update the last regular shooting time
+                lastRegularShootTime = millis();
+
+                // Activate regular bullets
+                for (int j = 0; j < intNumLasers; j += 3) {
+                    if (!blnIsLaserActive[j]) {
+                        // Center laser
+                        fltLaserX[j] = fltBossX;
+                        fltLaserY[j] = fltBossY;
+                        blnIsLaserActive[j] = true;
+
+                        // Left laser
+                        fltLaserX[j + 1] = fltBossX - 110; // Adjust the offset as needed
+                        fltLaserY[j + 1] = fltBossY;
+                        blnIsLaserActive[j + 1] = true;
+
+                        // Right laser
+                        fltLaserX[j + 2] = fltBossX + 110; // Adjust the offset as needed
+                        fltLaserY[j + 2] = fltBossY;
+                        blnIsLaserActive[j + 2] = true;
+
+                        // Exit the loop after activating three lasers
+                        break;
+                    }
+                }
+            }
+
+            // Check if enough time has passed since the last special shot
+            if (millis() - lastSpecialShootTime > shootInterval) {
+                // Update the last special shooting time
+                lastSpecialShootTime = millis();
+
+                // Activate special bullets
+                for (int j = 0; j < intNumSpecialLasers; j += 3) {
+                    if (!blnIsSpecialLaserActive[j]) {
+                        // Center special laser
+                        fltSpecialLaserX[j] = fltBossX;
+                        fltSpecialLaserY[j] = fltBossY;
+                        blnIsSpecialLaserActive[j] = true;
+
+                        // Left special laser
+                        fltSpecialLaserX[j + 1] = fltBossX - 100; // Adjust the offset as needed
+                        fltSpecialLaserY[j + 1] = fltBossY;
+                        blnIsSpecialLaserActive[j + 1] = true;
+
+                        // Right special laser
+                        fltSpecialLaserX[j + 2] = fltBossX + 100; // Adjust the offset as needed
+                        fltSpecialLaserY[j + 2] = fltBossY;
+                        blnIsSpecialLaserActive[j + 2] = true;
+
+                        // Exit the loop after activating three special lasers
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    boolean isBossDefeated() {
+        return intBossHealth <= 0;
+    }
+
+    void displayBossHealthBar() {
+        // Set the color for the health bar background (white)
+        fill(255);
+
+        // Draw the white background for the health bar
+        rect(fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2 - 20, fltBossSize, 15);
+
+        // Set the color for the health bar (red)
+        fill(255, 0, 0);
+
+        // Calculate the width of the health bar based on the boss's health
+        float healthBarWidth = map(intBossHealth, 0, 45, 0, fltBossSize);
+
+        // Draw the health bar above the boss
+        rect(fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2 - 20, healthBarWidth, 15);
+
+        // Calculate the new size for the boss image
+        float bossImageWidth = fltBossSize + 140; // Adjust as needed
+
+        // Draw the resized boss image on top of the health bar
+        image(bossName, fltBossX - bossImageWidth / 2, fltBossY - fltBossSize / 2 - 175, bossImageWidth,
+                bossImageWidth * (bossName.height / bossName.width));
+    }
+
+    public void mousePressed() {
+
+        // Check if the mouse is pressed over the start button
+        if (isMouseInsideStartButton() && intLevel == 1) {
+
+            resetGame(); // Reset the game when the Start Game button is pressed
+            intLevel = 4;
+
+        }
+
+        // Check if the mouse is pressed over the How to Play button
+        if (isMouseInsideHowToPlayButton() && intLevel == 1) {
+
+            intLevel = 3; // Set the level to show How to Play screen
+
+        }
+
+        // Check if the mouse is pressed over the back to menu button
+        if (isMouseInsideMenuButton() && (intLevel == 2 || intLevel == 3)) {
+
+            intLevel = 1; // Set the level to show Menu screen
+
+        }
+
+        // Check if the mouse is pressed over the options button
+        if (isMouseInsideOptionsButton() && intLevel == 1) {
+
+            intLevel = 2;
+
+        }
+
+        // Check if the mouse is pressed over the Game Over button
+        if (intLevel == 11 && isMouseInsideGameOverButton()) {
+
+            resetGame(); // Reset the game when the Game Over button is pressed
+            intLevel = 1; // Set the level to return to the Menu screen
+
+        }
+
+        // Check if the mouse is pressed over the Win Game button
+        if (intLevel == 10 && isMouseInsideWinGameButton()) {
+
+            resetGame();
+            intLevel = 1; // Set the level to return to the Menu screen
+
+        }
+
+        // Check if the mouse is pressed over the checkbox in the options menu
+        if (intLevel == 2 && mouseX >= intChangeMovementButtonTopLeftX
+                && mouseX <= intChangeMovementButtonBottomRightX && mouseY >= intChangeMovementButtonTopLeftY
+                && mouseY <= intChangeMovementButtonBottomRightY) {
+
+            blnChangeMovementButtonPressed = !blnChangeMovementButtonPressed;
+
+        }
+
+        // Check if the mouse is pressed over the checkbox in the options menu
+        if (intLevel == 2 && mouseX >= intChangeShootButtonTopLeftX
+                && mouseX <= intChangeShootButtonBottomRightX && mouseY >= intChangeShootButtonTopLeftY
+                && mouseY <= intChangeShootButtonBottomRightY) {
+
+            blnChangeShootButtonPressed = !blnChangeShootButtonPressed;
+
+        }
+
+        if (blnChangeShootButtonPressed && mouseButton == LEFT) {
+
+            // Check if enough time has passed since the last shot
+            long currentTime = millis();
+            if (currentTime - lastClickTime >= intLaserCooldown) {
+
+                // Shoot a player laser
+                shootPlayerLaser();
+                lastClickTime = currentTime;
+
+            }
+        }
+    }
+
+    boolean areAllCirclesHit() {
+
+        for (int i = 0; i < intNumCircles; i++) {
+
+            if (!blnIsCircleHit[i]) {
+                return false; // If any circle is not hit, return false
+
+            }
+        }
+
+        return true; // All circles are hit
+
+    }
 
     boolean isMouseInsideMenuButton() {
-        //h Check if the moue coordinates are within the button boundaries
+        // h Check if the moue coordinates are within the button boundaries
         return mouseX >= intMenuButtonTopLeftX &&
                 mouseX <= intMenuButtonBottomRightX &&
                 mouseY >= intMenuButtonTopLeftY &&
@@ -1169,12 +1348,35 @@ public class Maingame extends PApplet {
                 mouseY <= intWinGameButtonBottomRightY;
     }
 
+    // Helper function to check if the mouse is inside the Change Movement button
+    boolean isMouseInsideChangeMovementButton() {
+        return mouseX >= intChangeMovementButtonTopLeftX &&
+                mouseX <= intChangeMovementButtonBottomRightX &&
+                mouseY >= intChangeMovementButtonTopLeftY &&
+                mouseY <= intChangeMovementButtonBottomRightY;
+    }
+
+    // Helper function to check if the mouse is inside the Change Shoot button
+    boolean isMouseInsideChangeShootButton() {
+        return mouseX >= intChangeShootButtonTopLeftX &&
+                mouseX <= intChangeShootButtonBottomRightX &&
+                mouseY >= intChangeShootButtonTopLeftY &&
+                mouseY <= intChangeShootButtonBottomRightY;
+    }
+
     public void resetGame() {
         // Reset player variables
         intPlayerX = width / 2;
         intPlayerY = height - 80;
         intPlayerHealth = 5;
         blnIsPlayerHit = false; // Reset player hit state
+
+        // Reset boss variables
+        fltBossX = width / 2;
+        fltBossY = 160; // Adjust the Y position of the boss
+        fltBossSpeed = 2.0f; // Adjust boss speed as needed
+        blnIsBossHit = false;
+        intBossHitCount = 0;
 
         // Reset circle variables
         fltCircleY = (float) (height / 10); // Adjust the Y position of circles
@@ -1210,36 +1412,6 @@ public class Maingame extends PApplet {
         }
 
         blnGameOver = false; // Reset game over state
-    }
-
-    boolean areAllCirclesHit() {
-
-        for (int i = 0; i < intNumCircles; i++) {
-
-            if (!blnIsCircleHit[i]) {
-                return false; // If any circle is not hit, return false
-
-            }
-        }
-
-        return true; // All circles are hit
-
-    }
-
-    // Helper function to check if the mouse is inside the Change Movement button
-    boolean isMouseInsideChangeMovementButton() {
-        return mouseX >= intChangeMovementButtonTopLeftX &&
-                mouseX <= intChangeMovementButtonBottomRightX &&
-                mouseY >= intChangeMovementButtonTopLeftY &&
-                mouseY <= intChangeMovementButtonBottomRightY;
-    }
-
-    // Helper function to check if the mouse is inside the Change Shoot button
-    boolean isMouseInsideChangeShootButton() {
-        return mouseX >= intChangeShootButtonTopLeftX &&
-                mouseX <= intChangeShootButtonBottomRightX &&
-                mouseY >= intChangeShootButtonTopLeftY &&
-                mouseY <= intChangeShootButtonBottomRightY;
     }
 
     public void drawChangeMovementButton() {
@@ -1323,8 +1495,7 @@ public class Maingame extends PApplet {
         for (int i = 0; i < boldness; i++) {
 
             text("CHANGE SHOOT TO LEFT MOUSE BUTTON.", textX + i, textY);
-            
-        }
 
+        }
     }
 }
