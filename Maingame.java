@@ -13,7 +13,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 1;
+    int intLevel = 9;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -22,19 +22,19 @@ public class Maingame extends PApplet {
     long playerHitStartTime = 0;
     int playerHitDuration = 25; // milliseconds
 
-    // Boss variables
-    float fltBossX;
-    float fltBossY;
-    float fltBossSpeed;
-    float fltBossSize = 200;
-    boolean blnIsBossHit;
-    int intBossHitCount;
-    int intBossHealth = 45;
-    int intBossHitStartTime = 0;
-    int intBossHitDuration = 450;
+        // Boss variables
+        float fltBossX;
+        float fltBossY;
+        float fltBossSpeed;
+        float fltBossSize = 200;
+        boolean blnIsBossHit;
+        int intBossHitCount;
+        int intBossHealth = 45;
+        int intBossHitStartTime = 0;
+        int intBossHitDuration = 450;
 
-    private static long lastRegularShootTime = 0;
-    private static long lastSpecialShootTime = 0;
+        private static long lastRegularShootTime = 0;
+        private static long lastSpecialShootTime = 0;
 
     // Declare player image variable
     PImage stage1PlayerImage;
@@ -1073,21 +1073,34 @@ public class Maingame extends PApplet {
         }
     }
 
-    void displayBoss() {
-        if (!blnIsBossHit) {
-            image(bossImage, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
+  void displayBoss() {
+    if (!blnIsBossHit) {
+        // Check if boss is below half health
+        if (intBossHealth <= 23) {
+            // Display enraged boss image
+            image(bossImageEnraged, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
         } else {
-            // Show the bossHitImage for 500 milliseconds
+            // Display regular boss image
+            image(bossImage, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
+        }
+    } else {
+        // Show the bossHitEnraged image for 500 milliseconds when enraged
+        if (intBossHealth <= 23) {
+            image(bossHitEnraged, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
+        } else {
+            // Show the bossHitImage for 500 milliseconds for the regular boss
             image(bossHitImage, fltBossX - fltBossSize / 2, fltBossY - fltBossSize / 2, fltBossSize, fltBossSize);
+        }
 
-            // Check if the display duration has elapsed
-            if (millis() - intBossHitStartTime > intBossHitDuration) {
-                blnIsBossHit = false; // Reset boss hit state
-                intBossHitStartTime = millis(); // Reset hit start time for the next hit
-
-            }
+        // Check if the display duration has elapsed
+        if (millis() - intBossHitStartTime > intBossHitDuration) {
+            blnIsBossHit = false; // Reset boss hit state
+            intBossHitStartTime = millis(); // Reset hit start time for the next hit
         }
     }
+}
+
+
 
     void moveBoss() {
         // Move boss side to side with consistent speed
