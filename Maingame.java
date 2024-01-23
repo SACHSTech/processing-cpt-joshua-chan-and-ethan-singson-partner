@@ -24,7 +24,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 5;
+    int intLevel = 1;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -158,7 +158,7 @@ public class Maingame extends PApplet {
     // Variable to store the start time of the new wave
     long newWaveStartTime = 0;
     // Duration of the new wave display in milliseconds
-    int newWaveDuration = 2000; // Change this value to set the duration (in milliseconds)
+    int newWaveDuration = 3000; // Change this value to set the duration (in milliseconds)
 
     // Define Screen Size
     public void settings() {
