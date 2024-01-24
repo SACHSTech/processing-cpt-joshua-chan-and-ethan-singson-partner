@@ -2,7 +2,10 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 /**
- * Main game class extending PApplet.
+ * Runs a fixed shooter game where you have to dedeat all the enemies to win and
+ * save your planet.
+ * 
+ * @author Joshua and Ethan
  */
 public class Maingame extends PApplet {
 
@@ -13,7 +16,7 @@ public class Maingame extends PApplet {
     boolean blnRight = false;
 
     // Player Variables
-    int intLevel = 9;
+    int intLevel = 1;
     int intPlayerX, intPlayerY;
     int intPlayerSpeed = 4;
     int intPlayerSize = 60;
@@ -168,19 +171,29 @@ public class Maingame extends PApplet {
 
     // Variable to store the start time of the new wave
     long newWaveStartTime = 0;
+
     // Duration of the new wave display in milliseconds
-    int newWaveDuration = 3000; // Change this value to set the duration (in milliseconds)
+    int newWaveDuration = 3000;
 
     // Define Screen Size
     public void settings() {
         size(600, 750);
     }
 
+    /**
+     * The setup method initializes the game environment and sets up necessary
+     * components
+     * This method loads images, sets background colors, and initializes various
+     * game elements.
+     */
     public void setup() {
+        // Set the background color
         background(255);
+
+        // Initialize the game state
         resetGame();
 
-        // Load the player image
+        // Load player images
         stage1PlayerImage = loadImage("intergalaticmogger/player/stage1sprite.png");
         stage2PlayerImage = loadImage("intergalaticmogger/player/stage2sprite.png");
         stage3PlayerImage = loadImage("intergalaticmogger/player/stage3sprite.png");
@@ -188,21 +201,20 @@ public class Maingame extends PApplet {
         playerStage2HitImage = loadImage("intergalaticmogger/player/stage2spritehit.png");
         playerStage3HitImage = loadImage("intergalaticmogger/player/stage3spritehit.png");
         health = loadImage("intergalaticmogger/player/health.png");
-        health.resize(60, 60);
+        health.resize(60, 60); // Resize health image
 
-        // Load the enemy image
+        // Load enemy images
         enemyImage = loadImage("intergalaticmogger/enemies/enemy.png");
         enemyHitImage = loadImage("intergalaticmogger/enemies/enemyhit.png");
 
-        // Load the boss image
-
+        // Load boss images
         bossImage = loadImage("intergalaticmogger/enemies/boss.png");
         bossHitImage = loadImage("intergalaticmogger/enemies/bosshit.png");
         bossImageEnraged = loadImage("intergalaticmogger/enemies/leahunenraged.png");
         bossHitEnraged = loadImage("intergalaticmogger/enemies/leahunhitenraged.png");
         bossName = loadImage("intergalaticmogger/enemies/leahun.png");
 
-        // Load backgrounds
+        // Load background images
         startMenu = loadImage("intergalaticmogger/levels/startmenu.png");
         startHover = loadImage("intergalaticmogger/levels/startgamehover.png");
         howToMenu = loadImage("intergalaticmogger/levels/howtoplay.png");
@@ -224,7 +236,8 @@ public class Maingame extends PApplet {
             fltCircleSpeeds[i] = random(1.0f, 3.0f); // Set random speeds for each circle
         }
 
-        fltCircleY = (float) (height / 4.5);
+        fltCircleY = (float) (height / 4.5); // Set initial Y position for circles
+
         // Initialize laser positions and status
         for (int i = 0; i < intNumLasers; i++) {
             blnIsLaserActive[i] = false;
@@ -234,12 +247,13 @@ public class Maingame extends PApplet {
         for (int i = 0; i < intNumPlayerLasers; i++) {
             blnIsPlayerLaserActive[i] = false;
         }
-
     }
 
+    /**
+     * draws the methods that make up the game
+     */
     public void draw() {
-
-        // Draw Levels
+        // Draw Levels based on the current game state
         if (intLevel == 1) {
             image(startMenu, 0, 0, width, height);
         } else if (intLevel == 2) {
@@ -248,17 +262,14 @@ public class Maingame extends PApplet {
             drawChangeShootButton();
         } else if (intLevel == 3) {
             image(howToMenu, 0, 0, width, height);
-
         } else if (intLevel == 4) {
             // Check if it's a new wave
             if (newWaveStartTime == 0) {
-                // Set the start time of the new wave
-                newWaveStartTime = millis();
+                newWaveStartTime = millis(); // Set the start time of the new wave
             }
-            // Calculate the elapsed time since the new wave started
-            long elapsedTime = millis() - newWaveStartTime;
-            // Calculate the time remaining until the new wave ends
-            long timeRemaining = newWaveDuration - elapsedTime;
+
+            long elapsedTime = millis() - newWaveStartTime; // Calculate elapsed time
+            long timeRemaining = newWaveDuration - elapsedTime; // Calculate time remaining
 
             // Check if it's time to transition to the next level
             if (timeRemaining <= 0) {
@@ -300,17 +311,6 @@ public class Maingame extends PApplet {
             for (int i = 0; i < intNumCircles; i++) {
                 enemyShoot(i);
             }
-            // Display the player using the image
-            if (intPlayerHealth > 0 && !blnIsPlayerHit) {
-                image(stage1PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-            } else if (intPlayerHealth > 0) {
-                // Check if enough time has passed since the player was hit
-                if (millis() - playerHitStartTime >= playerHitDuration) {
-                    blnIsPlayerHit = false;
-                } else {
-                    image(playerStage1HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-                }
-            }
 
         } else if (intLevel == 6) {
             // Check if it's a new wave
@@ -345,17 +345,7 @@ public class Maingame extends PApplet {
             }
             handleInput();
             movePlayer();
-            // Display the player using the image
-            if (intPlayerHealth > 0 && !blnIsPlayerHit) {
-                image(stage2PlayerImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-            } else if (intPlayerHealth > 0) {
-                // Check if enough time has passed since the player was hit
-                if (millis() - playerHitStartTime >= playerHitDuration) {
-                    blnIsPlayerHit = false;
-                } else {
-                    image(playerStage2HitImage, intPlayerX, intPlayerY, intPlayerSize, intPlayerSize);
-                }
-            }
+
             // Move and display player lasers
             movePlayerLasers();
             displayPlayerLasers();
@@ -402,25 +392,42 @@ public class Maingame extends PApplet {
                     image(level3, 0, 0, width, height); // Display Level 1 image
                 }
             }
+        }
 
-        } else if (intLevel == 9) {
+        /**
+         * Handles the logic for levels 9 and 10, where the player faces the boss.
+         * Updates player and boss positions, manages player health, and handles
+         * shooting.
+         */
+        else if (intLevel == 9) {
+            // Set the background to the level 3 image
             background(level3);
+
+            // Reset the new wave start time
             newWaveStartTime = 0;
+
+            // Display the player's health at the top right of the screen
             for (int i = 0; i < intPlayerHealth; i++) {
                 image(health, width - health.width * (i + 1), 10);
             }
+
+            // Handle player input
             handleInput();
+
+            // Move the player
             movePlayer();
 
             // Move and display player lasers
             movePlayerLasers();
             displayPlayerLasers();
+
             // Check for collisions with the player laser
             checkCollisions();
+
             // Check for collisions with purple lasers
             checkPlayerCollisions();
 
-            // Move and display lasers
+            // Move and display regular lasers
             moveLasers();
             displayLasers();
 
@@ -432,61 +439,62 @@ public class Maingame extends PApplet {
             moveBoss();
             displayBoss();
             displayBossHealthBar();
-            // Boss shooting logic
+
+            // Handle boss shooting logic
             bossShoot();
 
             // Check for victory condition
             if (isBossDefeated()) {
-                intLevel = 11; // Player wins
+                // Player wins, transition to the next level
+                intLevel = 10;
                 resetGame();
             }
 
-        
-
+            // Adjust laser speeds
             fltSpecialLaserSpeed = 4f;
             fltSpecialLaserSpeedY = 4f;
-
             fltLaserSpeed = 2.5f;
+        }
 
-        } else if (intLevel == 11) {
+        /**
+         * Handles the logic for level 10, displaying the end win screen.
+         */
+        else if (intLevel == 10) {
             image(endWinScreen, 0, 0, width, height);
+        }
 
-        } else if (intLevel == 12) {
+        /**
+         * Handles the logic for level 11, displaying the game over screen.
+         */
+        else if (intLevel == 11) {
             image(gameOverScreen, 0, 0, width, height);
         }
 
         // Check if any circle has reached the bottom of the screen
         for (int i = 0; i < intNumCircles; i++) {
-
             if (fltCircleY + fltCircleDiameter / 2 > height) {
-
                 blnGameOver = true;
-
             }
         }
 
+        // Check if the game is over and transition to the appropriate level
         if (blnGameOver) {
-
-            intLevel = 12;
-
+            intLevel = 11;
         }
 
         // Check if all circles are hit to advance to the next level
         if (areAllCirclesHit()) {
-
-            if (intLevel < 11) {
-
+            if (intLevel < 10) {
                 intLevel++;
                 resetGame();
-
             } else {
-
-                intLevel = 12;
+                // If at the last level, transition to the game over screen
+                intLevel = 11;
                 resetGame();
-
             }
         }
 
+        // Display player images based on health and level
         if (intPlayerHealth > 0 && intLevel == 5) {
 
             if (blnIsPlayerHit) {
@@ -550,6 +558,7 @@ public class Maingame extends PApplet {
             }
         }
 
+        // Logic for the button hover
         if (isMouseInsideStartButton() && intLevel == 1) {
 
             image(startHover, intStartTopLeftX - 18, intStartTopLeftY - 6.02f);
@@ -569,6 +578,9 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Handles the movement of circles, updating their positions and behavior.
+     */
     void moveCircles() {
 
         // Move circles side to side with consistent speed
@@ -587,7 +599,6 @@ public class Maingame extends PApplet {
 
                 // Mark that a circle has reached the edge
                 edgeReached = true;
-
             }
         }
 
@@ -601,16 +612,16 @@ public class Maingame extends PApplet {
 
                 if (fltCircleY + fltCircleDiameter / 2 > height && !blnIsCircleHit[i]) {
                     intCircleHitCount[i] = 0;
-
                 }
             }
 
             edgeReached = false; // Reset the edgeReached variable
-
         }
-
     }
 
+    /**
+     * Displays the circles for the first row, considering hit status and flashing.
+     */
     void displayCircles() {
         // Display circles for the first row
         for (int i = 0; i < intNumCircles; i++) {
@@ -627,6 +638,9 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Handles key presses for movement and shooting based on the game state.
+     */
     public void keyPressed() {
 
         if (blnChangeMovementButtonPressed) {
@@ -686,6 +700,9 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Handles key releases for movement based on the game state.
+     */
     public void keyReleased() {
 
         if (blnChangeMovementButtonPressed) {
@@ -732,24 +749,23 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Handles player input, updating movement flags based on key presses.
+     */
     void handleInput() {
-
         if (blnUp) {
 
             intPlayerY -= intPlayerSpeed;
-
         }
 
         if (blnDown) {
 
             intPlayerY += intPlayerSpeed;
-
         }
 
         if (blnLeft) {
 
             intPlayerX -= intPlayerSpeed;
-
         }
 
         if (blnRight) {
@@ -759,18 +775,24 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Moves the player within the screen bounds based on input.
+     */
     void movePlayer() {
-
         // Add boundary checks to keep the player within the screen bounds
         intPlayerX = constrain(intPlayerX, 0, width - intPlayerSize);
 
         // Restrict the player from going above the top third
         intPlayerY = constrain(intPlayerY, (int) (height / 1.5), height - intPlayerSize);
-
     }
 
+    /**
+     * Handles enemy shooting logic, randomly activating lasers at a specific circle
+     * position.
+     *
+     * @param circleIndex The index of the circle triggering the shooting.
+     */
     void enemyShoot(int circleIndex) {
-
         // Randomly decide when to shoot
         if (random(1) < 0.008) {
 
@@ -782,12 +804,14 @@ public class Maingame extends PApplet {
                     fltLaserY[j] = fltCircleY;
                     blnIsLaserActive[j] = true;
                     break; // Exit the loop after activating one laser
-
                 }
             }
         }
     }
 
+    /**
+     * Moves the active regular lasers upward, deactivating them when off-screen.
+     */
     void moveLasers() {
 
         for (int i = 0; i < intNumLasers; i++) {
@@ -806,6 +830,10 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Displays the regular lasers on the screen, considering hit status and circle
+     * collisions.
+     */
     void displayLasers() {
 
         fill(0, 250, 0); // Dark Green color
@@ -841,13 +869,17 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Moves the active special lasers, updating their positions based on sine wave
+     * trajectory.
+     */
     void moveSpecialLasers() {
 
         for (int i = 0; i < intNumSpecialLasers; i++) {
 
             if (blnIsSpecialLaserActive[i]) {
 
-                // Update X-coordinate with a since wave trajectory
+                // Update X-coordinate with a sine wave trajectory
                 fltSpecialLaserX[i] += fltSpecialLaserSpeed * sin(fltWaveFrequencyX * frameCount);
 
                 // Update Y-coordinate directly
@@ -863,6 +895,10 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Displays the special lasers on the screen, considering hit status and circle
+     * collisions.
+     */
     void displaySpecialLasers() {
 
         fill(255, 255, 0);
@@ -899,6 +935,11 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Initiates a special laser shot from an enemy circle at the specified index.
+     *
+     * @param circleIndex The index of the circle triggering the special laser shot.
+     */
     void specialEnemyShoot(int circleIndex) {
         // Randomly decide when to shoot a special laser
         if (random(1) < 0.003) {
@@ -918,6 +959,9 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Moves the active player lasers upward, deactivating them when off-screen.
+     */
     void movePlayerLasers() {
         for (int i = 0; i < intNumPlayerLasers; i++) {
 
@@ -935,6 +979,9 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Displays the player lasers on the screen in blue color.
+     */
     void displayPlayerLasers() {
         fill(0, 0, 255); // Blue color for player lasers
         noStroke();
@@ -948,6 +995,10 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Checks for collisions between player and enemy lasers, triggering actions if
+     * a collision occurs.
+     */
     void checkPlayerCollisions() {
 
         // Check regular laser collisions
@@ -987,6 +1038,10 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Handles the logic when the player is hit by an enemy laser, including health
+     * decrement and game over checks.
+     */
     void handlePlayerHit() {
 
         if (!blnIsPlayerHit) {
@@ -1006,13 +1061,25 @@ public class Maingame extends PApplet {
         }
     }
 
-    // Helper function to check if a point is inside a circle
+    /**
+     * Helper function to check if a point is inside a circle.
+     *
+     * @param pointX       X-coordinate of the point.
+     * @param pointY       Y-coordinate of the point.
+     * @param fltCircleX   X-coordinate of the circle's center.
+     * @param fltCircleY   Y-coordinate of the circle's center.
+     * @param circleRadius Radius of the circle.
+     * @return True if the point is inside the circle, false otherwise.
+     */
     boolean circleHit(float pointX, float pointY, float fltCircleX, float fltCircleY, float circleRadius) {
         float d = dist(pointX, pointY, fltCircleX, fltCircleY);
         return d < circleRadius;
-
     }
 
+    /**
+     * Initiates a player laser shot by activating an available player laser.
+     * Sets the laser's initial position to the player's position.
+     */
     void shootPlayerLaser() {
 
         for (int i = 0; i < intNumPlayerLasers; i++) {
@@ -1028,6 +1095,11 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Checks for collisions between player lasers and enemy circles or the boss,
+     * triggering appropriate actions such as hit counts, deactivating lasers, and
+     * boss health reduction.
+     */
     void checkCollisions() {
 
         checkBossCollisions();
@@ -1055,6 +1127,11 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Checks for collisions between player lasers and the boss,
+     * triggering actions such as hit count increment, health reduction, and
+     * displaying hit images.
+     */
     void checkBossCollisions() {
         // Check player laser collisions with the boss
         for (int i = 0; i < intNumPlayerLasers; i++) {
@@ -1077,6 +1154,10 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Displays the boss image on the screen, considering hit status and health.
+     * Enraged boss image is displayed when the boss is below half health.
+     */
     void displayBoss() {
         if (!blnIsBossHit) {
             // Check if boss is below half health
@@ -1105,6 +1186,12 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Moves the boss side to side with consistent speed, reversing direction when
+     * reaching screen edges.
+     * Moves the boss down after reaching the screen edges and resets hit count when
+     * reaching the bottom.
+     */
     void moveBoss() {
         // Move boss side to side with consistent speed
         boolean edgeReached = false; // Variable to track if the boss has reached the edge
@@ -1134,6 +1221,10 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Initiates a boss attack by shooting regular and special lasers at intervals,
+     * considering the boss's hit status and elapsed time since the last shots.
+     */
     void bossShoot() {
         // Check if the boss is not hit before shooting
         if (!blnIsBossHit) {
@@ -1199,10 +1290,20 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Checks if the boss has been defeated based on its remaining health.
+     *
+     * @return True if the boss's health is zero or less, indicating defeat;
+     *         otherwise, false.
+     */
     boolean isBossDefeated() {
         return intBossHealth <= 0;
     }
 
+    /**
+     * Displays the boss's health bar above its position, indicating the remaining
+     * health.
+     */
     void displayBossHealthBar() {
         // Set the color for the health bar background (white)
         fill(255);
@@ -1227,6 +1328,10 @@ public class Maingame extends PApplet {
                 bossImageWidth * (bossName.height / bossName.width));
     }
 
+    /**
+     * Handles mouse press events, responding to button clicks such as starting the
+     * game, accessing options, or returning to the menu.
+     */
     public void mousePressed() {
 
         // Check if the mouse is pressed over the start button
@@ -1306,28 +1411,38 @@ public class Maingame extends PApplet {
         }
     }
 
+    /**
+     * Checks if all circles have been hit.
+     *
+     * @return True if all circles are hit; otherwise, false.
+     */
     boolean areAllCirclesHit() {
-
         for (int i = 0; i < intNumCircles; i++) {
-
             if (!blnIsCircleHit[i]) {
                 return false; // If any circle is not hit, return false
-
             }
         }
-
         return true; // All circles are hit
-
     }
 
+    /**
+     * Checks if the mouse coordinates are inside the Menu button boundaries.
+     *
+     * @return True if the mouse is inside the Menu button; otherwise, false.
+     */
     boolean isMouseInsideMenuButton() {
-        // h Check if the moue coordinates are within the button boundaries
+        // Check if the mouse coordinates are within the button boundaries
         return mouseX >= intMenuButtonTopLeftX &&
                 mouseX <= intMenuButtonBottomRightX &&
                 mouseY >= intMenuButtonTopLeftY &&
                 mouseY <= intMenuButtonBottomRightY;
     }
 
+    /**
+     * Checks if the mouse coordinates are inside the Start button boundaries.
+     *
+     * @return True if the mouse is inside the Start button; otherwise, false.
+     */
     boolean isMouseInsideStartButton() {
         // Check if the mouse coordinates are within the button boundaries
         return mouseX >= intStartTopLeftX &&
@@ -1336,15 +1451,24 @@ public class Maingame extends PApplet {
                 mouseY <= intStartBottomRightY;
     }
 
+    /**
+     * Checks if the mouse coordinates are inside the How to Play button boundaries.
+     *
+     * @return True if the mouse is inside the How to Play button; otherwise, false.
+     */
     boolean isMouseInsideHowToPlayButton() {
         // Check if the mouse coordinates are within the How to Play button boundaries
         return mouseX >= intHTPButtonTopLeftX &&
                 mouseX <= intHTPButtonBottomRightX &&
                 mouseY >= intHTPButtonTopLeftY &&
                 mouseY <= intHTPButtonBottomRightY;
-
     }
 
+    /**
+     * Checks if the mouse coordinates are inside the Options button boundaries.
+     *
+     * @return True if the mouse is inside the Options button; otherwise, false.
+     */
     boolean isMouseInsideOptionsButton() {
         // check if the mouse coordinates are within the options button
         return mouseX >= intOptionsButtonTopLeftX &&
@@ -1353,6 +1477,11 @@ public class Maingame extends PApplet {
                 mouseY <= intOptionsButtonBottomRightY;
     }
 
+    /**
+     * Checks if the mouse coordinates are inside the Game Over button boundaries.
+     *
+     * @return True if the mouse is inside the Game Over button; otherwise, false.
+     */
     boolean isMouseInsideGameOverButton() {
         return mouseX >= intGameOverButtonTopLeftX &&
                 mouseX <= intGameOverButtonBottomRightX &&
@@ -1360,6 +1489,11 @@ public class Maingame extends PApplet {
                 mouseY <= intGameOverButtonBottomRightY;
     }
 
+    /**
+     * Checks if the mouse coordinates are inside the Win Game button boundaries.
+     *
+     * @return True if the mouse is inside the Win Game button; otherwise, false.
+     */
     boolean isMouseInsideWinGameButton() {
         return mouseX >= intWinGameButtonTopLeftX &&
                 mouseX <= intWinGameButtonBottomRightX &&
@@ -1367,7 +1501,12 @@ public class Maingame extends PApplet {
                 mouseY <= intWinGameButtonBottomRightY;
     }
 
-    // Helper function to check if the mouse is inside the Change Movement button
+    /**
+     * Checks if the mouse is inside the Change Movement button.
+     *
+     * @return True if the mouse is inside the Change Movement button; otherwise,
+     *         false.
+     */
     boolean isMouseInsideChangeMovementButton() {
         return mouseX >= intChangeMovementButtonTopLeftX &&
                 mouseX <= intChangeMovementButtonBottomRightX &&
@@ -1375,7 +1514,12 @@ public class Maingame extends PApplet {
                 mouseY <= intChangeMovementButtonBottomRightY;
     }
 
-    // Helper function to check if the mouse is inside the Change Shoot button
+    /**
+     * Checks if the mouse is inside the Change Shoot button.
+     *
+     * @return True if the mouse is inside the Change Shoot button; otherwise,
+     *         false.
+     */
     boolean isMouseInsideChangeShootButton() {
         return mouseX >= intChangeShootButtonTopLeftX &&
                 mouseX <= intChangeShootButtonBottomRightX &&
@@ -1383,8 +1527,10 @@ public class Maingame extends PApplet {
                 mouseY <= intChangeShootButtonBottomRightY;
     }
 
+    /**
+     * Resets the game state to its initial configuration.
+     */
     public void resetGame() {
-
         // Reset player variables
         intPlayerX = width / 2;
         intPlayerY = height - 80;
@@ -1394,7 +1540,7 @@ public class Maingame extends PApplet {
         // Reset boss variables
         fltBossX = width / 2;
         fltBossY = 160; // Adjust the Y position of the boss
-        fltBossSpeed = 2.0f; // Adjust boss speed as needed
+        fltBossSpeed = 2.0f;
         blnIsBossHit = false;
         intBossHitCount = 0;
         intBossHealth = 45;
@@ -1409,40 +1555,36 @@ public class Maingame extends PApplet {
         fltCircleY = (float) (height / 10); // Adjust the Y position of circles
 
         for (int i = 0; i < intNumCircles; i++) {
-
             fltCircleX[i] = (width / 2) - ((intNumCircles - 1) * fltCircleSpacing / 2) + (i * fltCircleSpacing);
             fltCircleSpeeds[i] = random(1.0f, 3.0f);
             blnIsCircleHit[i] = false;
             intCircleHitCount[i] = 0;
-
         }
 
         // Reset laser variables
         for (int i = 0; i < intNumLasers; i++) {
-
             blnIsLaserActive[i] = false;
-
         }
 
         // Reset special laser variables
         for (int i = 0; i < intNumSpecialLasers; i++) {
-
             blnIsSpecialLaserActive[i] = false;
-
         }
 
         // Reset player laser variables
         for (int i = 0; i < intNumPlayerLasers; i++) {
-
             blnIsPlayerLaserActive[i] = false;
-
         }
 
         blnGameOver = false; // Reset game over state
     }
 
+    /**
+     * Draws the Change Movement button with a checkbox indicating the current
+     * setting.
+     */
     public void drawChangeMovementButton() {
-
+        // Draw button background
         stroke(255);
         strokeWeight(7);
         fill(0, buttonAlpha);
@@ -1451,7 +1593,7 @@ public class Maingame extends PApplet {
                 intChangeMovementButtonBottomRightY - intChangeMovementButtonTopLeftY);
 
         if (blnChangeMovementButtonPressed) {
-
+            // Draw checkmark inside the button
             stroke(255);
             strokeWeight(7);
             noFill();
@@ -1462,7 +1604,6 @@ public class Maingame extends PApplet {
                     + (intChangeMovementButtonBottomRightY - intChangeMovementButtonTopLeftY) / 2;
             line(checkX, checkY, checkX + checkSize / 2, checkY + checkSize);
             line(checkX + checkSize / 2, checkY + checkSize, checkX + checkSize, checkY - checkSize / 2);
-
         }
 
         // Draw checkbox text on the right-hand side of the checkmark
@@ -1477,15 +1618,15 @@ public class Maingame extends PApplet {
         int boldness = 3;
 
         for (int i = 0; i < boldness; i++) {
-
             text("CHANGE MOVEMENT TO ARROW KEYS.", textX + i, textY);
-
         }
-
     }
 
+    /**
+     * Draws the Change Shoot button with a checkbox indicating the current setting.
+     */
     public void drawChangeShootButton() {
-
+        // Draw button background
         stroke(255);
         strokeWeight(7);
         fill(0, buttonAlpha);
@@ -1494,7 +1635,7 @@ public class Maingame extends PApplet {
                 intChangeShootButtonBottomRightY - intChangeShootButtonTopLeftY);
 
         if (blnChangeShootButtonPressed) {
-
+            // Draw checkmark inside the button
             stroke(255);
             strokeWeight(7);
             noFill();
@@ -1505,7 +1646,6 @@ public class Maingame extends PApplet {
                     + (intChangeShootButtonBottomRightY - intChangeShootButtonTopLeftY) / 2;
             line(checkX, checkY, checkX + checkSize / 2, checkY + checkSize);
             line(checkX + checkSize / 2, checkY + checkSize, checkX + checkSize, checkY - checkSize / 2);
-
         }
 
         // Draw checkbox text on the right-hand side of the checkmark
@@ -1520,10 +1660,7 @@ public class Maingame extends PApplet {
         int boldness = 3;
 
         for (int i = 0; i < boldness; i++) {
-
             text("CHANGE SHOOT TO LEFT MOUSE BUTTON.", textX + i, textY);
-
         }
-
     }
 }
